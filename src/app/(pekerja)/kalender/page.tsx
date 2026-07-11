@@ -1,21 +1,24 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { apiGet } from "@/lib/client";
 import { PHONE_SCROLL } from "@/components/layout/PhoneFrame";
 import { Icon } from "@/components/shared/Icons";
 import { BULAN, fmtLong } from "@/lib/date";
-import { CAL_EVENTS } from "@/lib/mock-data";
-import type { CalEventType } from "@/lib/types";
+import { todayWIB } from "@/lib/wib";
+
+type CalType = "libur" | "cuti" | "dinas" | "lembur";
+interface CalEvent { iso: string; type: CalType; label: string; own: boolean }
 
 const DOWS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
-const TODAY = "2026-07-11";
-const TYPE_COLOR: Record<CalEventType, string> = {
+const TODAY = todayWIB();
+const TYPE_COLOR: Record<CalType, string> = {
   libur: "var(--libur)",
   cuti: "var(--cuti)",
   dinas: "var(--dinas)",
   lembur: "var(--lembur)",
 };
-const LEGEND: { label: string; type: CalEventType }[] = [
+const LEGEND: { label: string; type: CalType }[] = [
   { label: "Libur", type: "libur" },
   { label: "Cuti", type: "cuti" },
   { label: "Dinas", type: "dinas" },
@@ -23,17 +26,24 @@ const LEGEND: { label: string; type: CalEventType }[] = [
 ];
 
 export default function KalenderPage() {
-  const [calY, setCalY] = useState(2026);
-  const [calM, setCalM] = useState(6); // Juli (0-indexed)
-  const [calSel, setCalSel] = useState("2026-07-15");
+  const now = new Date();
+  const [calY, setCalY] = useState(now.getFullYear());
+  const [calM, setCalM] = useState(now.getMonth());
+  const [calSel, setCalSel] = useState(TODAY);
+  const [events, setEvents] = useState<CalEvent[]>([]);
+
+  const month = `${calY}-${String(calM + 1).padStart(2, "0")}`;
+  useEffect(() => {
+    apiGet<{ events: CalEvent[] }>(`/api/calendar?month=${month}`).then((d) => setEvents(d.events)).catch(() => setEvents([]));
+  }, [month]);
 
   const evByDay = useMemo(() => {
-    const map: Record<string, CalEventType[]> = {};
-    CAL_EVENTS.forEach((e) => {
+    const map: Record<string, CalType[]> = {};
+    events.forEach((e) => {
       (map[e.iso] = map[e.iso] || []).push(e.type);
     });
     return map;
-  }, []);
+  }, [events]);
 
   const cells = useMemo(() => {
     const first = new Date(calY, calM, 1);
@@ -49,46 +59,28 @@ export default function KalenderPage() {
   }, [calY, calM]);
 
   function prev() {
-    setCalM((m) => {
-      if (m === 0) {
-        setCalY((y) => y - 1);
-        return 11;
-      }
-      return m - 1;
-    });
+    setCalM((m) => (m === 0 ? (setCalY((y) => y - 1), 11) : m - 1));
   }
   function next() {
-    setCalM((m) => {
-      if (m === 11) {
-        setCalY((y) => y + 1);
-        return 0;
-      }
-      return m + 1;
-    });
+    setCalM((m) => (m === 11 ? (setCalY((y) => y + 1), 0) : m + 1));
   }
 
-  const selEvents = CAL_EVENTS.filter((e) => e.iso === calSel);
-
-  const navBtn =
-    "flex h-[34px] w-[34px] items-center justify-center rounded-[10px] border border-border bg-surface text-muted";
+  const selEvents = events.filter((e) => e.iso === calSel);
+  const navBtn = "flex h-[34px] w-[34px] items-center justify-center rounded-[10px] border border-border bg-surface text-muted";
 
   return (
     <div className={PHONE_SCROLL}>
       <div className="px-[18px] pb-[6px] pt-5">
         <div className="text-[22px] font-extrabold tracking-[-.4px]">Kalender</div>
-        <div className="mt-[2px] text-[12.5px] font-semibold text-faint">
-          Libur, cuti, dinas & lembur satu bagian
-        </div>
+        <div className="mt-[2px] text-[12.5px] font-semibold text-faint">Libur, cuti, dinas & lembur satu bagian</div>
       </div>
 
-      <div className="px-[18px] pb-5 pt-[14px]">
+      <div className="px-[18px] pb-24 pt-[14px]">
         <div className="mb-[14px] flex items-center justify-between">
           <button onClick={prev} aria-label="Bulan sebelumnya" className={navBtn}>
             <Icon name="chevronLeft" size={16} strokeWidth={2.2} />
           </button>
-          <span className="text-[15px] font-extrabold tracking-[-.2px]">
-            {BULAN[calM]} {calY}
-          </span>
+          <span className="text-[15px] font-extrabold tracking-[-.2px]">{BULAN[calM]} {calY}</span>
           <button onClick={next} aria-label="Bulan berikutnya" className={navBtn}>
             <Icon name="chevronRight" size={16} strokeWidth={2.2} />
           </button>
@@ -96,9 +88,7 @@ export default function KalenderPage() {
 
         <div className="mb-[6px] grid grid-cols-7 gap-[3px]">
           {DOWS.map((d) => (
-            <div key={d} className="py-1 text-center text-[10.5px] font-bold text-faint">
-              {d}
-            </div>
+            <div key={d} className="py-1 text-center text-[10.5px] font-bold text-faint">{d}</div>
           ))}
         </div>
 
@@ -121,11 +111,7 @@ export default function KalenderPage() {
                 <span>{c.day}</span>
                 <span className="mt-[3px] flex h-[5px] gap-[2px]">
                   {types.map((t) => (
-                    <span
-                      key={t}
-                      className="h-[5px] w-[5px] rounded-full"
-                      style={{ background: isSel ? "rgba(255,255,255,.9)" : TYPE_COLOR[t] }}
-                    />
+                    <span key={t} className="h-[5px] w-[5px] rounded-full" style={{ background: isSel ? "rgba(255,255,255,.9)" : TYPE_COLOR[t] }} />
                   ))}
                 </span>
               </button>
@@ -146,15 +132,10 @@ export default function KalenderPage() {
           <div className="mb-[10px] text-[13px] font-extrabold">{fmtLong(calSel)}</div>
           <div className="flex flex-col gap-2">
             {selEvents.length === 0 ? (
-              <div className="p-[22px] text-center text-[12.5px] text-faint">
-                Tidak ada kejadian pada tanggal ini.
-              </div>
+              <div className="p-[22px] text-center text-[12.5px] text-faint">Tidak ada kejadian pada tanggal ini.</div>
             ) : (
               selEvents.map((e, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-[11px] rounded-[13px] border border-border bg-surface px-[13px] py-[11px]"
-                >
+                <div key={i} className="flex items-center gap-[11px] rounded-[13px] border border-border bg-surface px-[13px] py-[11px]">
                   <span className="w-1 self-stretch rounded" style={{ background: TYPE_COLOR[e.type] }} />
                   <div className="flex-1">
                     <div className="text-[12.5px] font-bold">{e.label}</div>

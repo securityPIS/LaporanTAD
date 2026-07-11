@@ -1,5 +1,9 @@
 import { redirect } from "next/navigation";
+import { getCurrentUser, getSessionEmail, gatePath } from "@/lib/session";
 
-export default function Home() {
-  redirect("/beranda");
+// Gerbang status onboarding (alur 4.1): arahkan sesuai status akun.
+export default async function Home() {
+  const email = await getSessionEmail();
+  const user = await getCurrentUser();
+  redirect(gatePath(user, Boolean(email)));
 }

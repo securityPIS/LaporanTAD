@@ -9,15 +9,17 @@ const TABS: { key: string; label: string; icon: IconName }[] = [
   { key: "lembur", label: "Lembur", icon: "clock" },
   { key: "cuti", label: "Cuti", icon: "calendar" },
   { key: "kalender", label: "Kalender", icon: "calendarDots" },
-  { key: "dokumen", label: "Dokumen", icon: "doc" },
+  { key: "lainnya", label: "Lainnya", icon: "dashboard" },
 ];
+
+const LAINNYA = ["/lainnya", "/dinas", "/pekerja", "/dokumen", "/profil"];
 
 export function BottomNav() {
   const pathname = usePathname();
   return (
     <nav className="z-10 flex h-[66px] flex-none items-stretch border-t border-border bg-surface px-1">
       {TABS.map((t) => {
-        const active = pathname === `/${t.key}`;
+        const active = t.key === "lainnya" ? LAINNYA.includes(pathname) : pathname === `/${t.key}`;
         return (
           <Link
             key={t.key}
