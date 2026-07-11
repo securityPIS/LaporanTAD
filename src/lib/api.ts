@@ -3,16 +3,28 @@ import { ZodError } from "zod";
 import { AppError } from "./errors";
 
 /** Bungkus handler route: tangkap AppError/ZodError → respons { code, message } Indonesia. */
-export function handle(
-  fn: (req: Request, ctx: { params: Promise<Record<string, string>> }) => Promise<Response>,
-) {
-  return async (req: Request, ctx: { params: Promise<Record<string, string>> }) => {
+export function route<C = unknown>(fn: (req: Request, ctx: C) => Promise<Response>) {
+  return async (req: Request, ctx: C) => {
     try {
       return await fn(req, ctx);
     } catch (e) {
       return errorResponse(e);
     }
   };
+}
+
+/** Baca body JSON dengan aman (objek kosong bila gagal parse). */
+export async function readJson<T = Record<string, unknown>>(req: Request): Promise<T> {
+  try {
+    return (await req.json()) as T;
+  } catch {
+    return {} as T;
+  }
+}
+
+export function qp(req: Request, key: string): string | undefined {
+  const v = new URL(req.url).searchParams.get(key);
+  return v && v.length > 0 ? v : undefined;
 }
 
 export function errorResponse(e: unknown): NextResponse {
