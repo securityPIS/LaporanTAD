@@ -1,17 +1,27 @@
 "use client";
 
 import { useApp } from "@/lib/store";
+import { useData, apiSend } from "@/lib/client";
 import { FAB_CLASS, PHONE_SCROLL } from "@/components/layout/PhoneFrame";
 import { Icon } from "@/components/shared/Icons";
-import { groupOvertime } from "@/lib/overtime";
+import { groupOvertimeRows, type OvertimeApiRow } from "@/lib/overtime-view";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { Skeleton } from "@/components/shared/Skeleton";
 
 export default function LemburPage() {
-  const { overtime, deleteOvertime, openModal, showToast } = useApp();
-  const groups = groupOvertime(overtime);
+  const { openModal, showToast } = useApp();
+  const { data, loading, error, reload } = useData<{ items: OvertimeApiRow[] }>("/api/overtime");
+  const groups = groupOvertimeRows(data?.items ?? []);
 
-  function handleDelete(id: string) {
-    deleteOvertime(id);
-    showToast("Catatan dihapus");
+  async function handleDelete(id: string) {
+    if (!confirm("Hapus catatan lembur ini?")) return;
+    try {
+      await apiSend(`/api/overtime/${id}`, "DELETE");
+      showToast("Catatan dihapus");
+      reload();
+    } catch (e) {
+      showToast((e as Error).message, "err");
+    }
   }
 
   return (
@@ -23,6 +33,12 @@ export default function LemburPage() {
         </div>
 
         <div className="px-[18px] pb-24 pt-[6px]">
+          {loading && <Skeleton rows={3} />}
+          {error && <div className="mt-6 rounded-xl bg-libur-weak px-3 py-2 text-[12.5px] font-semibold text-libur">{error}</div>}
+          {!loading && !error && groups.length === 0 && (
+            <EmptyState icon="clock" title="Belum ada lembur" hint="Ketuk + untuk mencatat lembur pertama Anda." />
+          )}
+
           {groups.map((g) => (
             <div key={g.key} className="mt-[18px]">
               <div className="mb-[10px] flex items-center justify-between">
@@ -52,18 +68,30 @@ export default function LemburPage() {
                         </div>
                         <div className="mt-[6px] text-[12.5px] leading-[1.4] text-muted">{it.ket}</div>
                         {it.replaced && (
-                          <div className="mt-[5px] text-[11.5px] font-semibold text-cuti">
-                            ↳ menggantikan {it.replaced}
-                          </div>
+                          <div className="mt-[5px] text-[11.5px] font-semibold text-cuti">↳ menggantikan {it.replaced}</div>
+                        )}
+                        {it.evidence && (
+                          <a href={`/api/files/${it.evidence}`} target="_blank" rel="noreferrer" className="mt-[6px] inline-flex items-center gap-1 text-[11.5px] font-bold text-accent">
+                            <Icon name="doc" size={13} /> Lihat evidence
+                          </a>
                         )}
                       </div>
-                      <button
-                        onClick={() => handleDelete(it.id)}
-                        aria-label="Hapus catatan"
-                        className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-[9px] border border-border bg-surface-2 text-faint"
-                      >
-                        <Icon name="trash" size={15} />
-                      </button>
+                      <div className="flex flex-none gap-1.5">
+                        <button
+                          onClick={() => openModal("lembur", { record: it }, reload)}
+                          aria-label="Ubah"
+                          className="flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-border bg-surface-2 text-faint"
+                        >
+                          <Icon name="edit" size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(it.id)}
+                          aria-label="Hapus"
+                          className="flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-border bg-surface-2 text-faint"
+                        >
+                          <Icon name="trash" size={15} />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="mt-[11px] flex items-center gap-[14px] border-t border-dashed border-border pt-[11px]">
@@ -83,7 +111,7 @@ export default function LemburPage() {
         </div>
       </div>
 
-      <button onClick={() => openModal("lembur")} className={FAB_CLASS}>
+      <button onClick={() => openModal("lembur", undefined, reload)} className={FAB_CLASS}>
         <Icon name="plus" size={18} strokeWidth={2.6} />
         Catat
       </button>

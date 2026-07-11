@@ -4,8 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/shared/Icons";
 import { LBL } from "@/components/ui/Sheet";
 
-/** Kanvas tanda tangan (pointer events, skala DPR) — lapor status ke induk. */
-export function SignaturePad({ onChange }: { onChange: (has: boolean) => void }) {
+/** Kanvas tanda tangan (pointer events, skala DPR) — lapor status & data ke induk. */
+export function SignaturePad({
+  onChange,
+  onData,
+}: {
+  onChange: (has: boolean) => void;
+  onData?: (dataUrl: string | null) => void;
+}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const drawing = useRef(false);
@@ -59,6 +65,13 @@ export function SignaturePad({ onChange }: { onChange: (has: boolean) => void })
     }
   }
   function up() {
+    if (drawing.current && hasSig && onData) {
+      try {
+        onData(canvasRef.current?.toDataURL("image/png") ?? null);
+      } catch {
+        /* abaikan */
+      }
+    }
     drawing.current = false;
   }
   function clear() {
@@ -70,6 +83,7 @@ export function SignaturePad({ onChange }: { onChange: (has: boolean) => void })
     }
     setHasSig(false);
     onChange(false);
+    onData?.(null);
   }
 
   return (

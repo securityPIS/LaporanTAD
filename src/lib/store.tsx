@@ -9,40 +9,50 @@ import {
   useRef,
   useState,
 } from "react";
-import { SEED_OVERTIME } from "./mock-data";
-import type { Overtime } from "./types";
+import type { UserRow } from "@/lib/db/tables";
 
 type Theme = "light" | "dark";
-type ModalKind = "lembur" | "cuti" | "gen" | null;
+export type ModalKind = "lembur" | "cuti" | "dinas" | "gen" | null;
+
+export interface ModalState {
+  kind: ModalKind;
+  payload?: Record<string, unknown>;
+  onDone?: () => void;
+}
 
 interface AppStore {
   theme: Theme;
   toggleTheme: () => void;
 
   toast: string;
-  showToast: (msg: string) => void;
+  toastKind: "ok" | "err";
+  showToast: (msg: string, kind?: "ok" | "err") => void;
 
-  overtime: Overtime[];
-  addOvertime: (o: Omit<Overtime, "id">) => void;
-  deleteOvertime: (id: string) => void;
+  me: UserRow | null;
+  setMe: (u: UserRow | null) => void;
 
-  modal: ModalKind;
-  openModal: (m: Exclude<ModalKind, null>) => void;
+  modal: ModalState;
+  openModal: (kind: Exclude<ModalKind, null>, payload?: Record<string, unknown>, onDone?: () => void) => void;
   closeModal: () => void;
 }
 
 const Ctx = createContext<AppStore | null>(null);
-
 const THEME_KEY = "ltad-theme";
 
-export function AppProvider({ children }: { children: React.ReactNode }) {
+export function AppProvider({
+  children,
+  initialMe = null,
+}: {
+  children: React.ReactNode;
+  initialMe?: UserRow | null;
+}) {
   const [theme, setTheme] = useState<Theme>("light");
   const [toast, setToast] = useState("");
-  const [overtime, setOvertime] = useState<Overtime[]>(SEED_OVERTIME);
-  const [modal, setModal] = useState<ModalKind>(null);
+  const [toastKind, setToastKind] = useState<"ok" | "err">("ok");
+  const [me, setMe] = useState<UserRow | null>(initialMe);
+  const [modal, setModal] = useState<ModalState>({ kind: null });
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Sinkronkan tema awal dari atribut <html> yang sudah diset skrip no-flash.
   useEffect(() => {
     const current = (document.documentElement.getAttribute("data-theme") as Theme) || "light";
     setTheme(current);
@@ -54,7 +64,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem(THEME_KEY, t);
     } catch {
-      /* localStorage tak tersedia — abaikan */
+      /* abaikan */
     }
   }, []);
 
@@ -62,41 +72,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     applyTheme(theme === "light" ? "dark" : "light");
   }, [theme, applyTheme]);
 
-  const showToast = useCallback((msg: string) => {
+  const showToast = useCallback((msg: string, kind: "ok" | "err" = "ok") => {
     setToast(msg);
+    setToastKind(kind);
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(""), 2600);
+    toastTimer.current = setTimeout(() => setToast(""), 3000);
   }, []);
 
-  useEffect(() => () => {
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    },
+    [],
+  );
 
-  const addOvertime = useCallback((o: Omit<Overtime, "id">) => {
-    setOvertime((prev) => [{ ...o, id: "o" + Date.now() }, ...prev]);
-  }, []);
-
-  const deleteOvertime = useCallback((id: string) => {
-    setOvertime((prev) => prev.filter((o) => o.id !== id));
-  }, []);
-
-  const openModal = useCallback((m: Exclude<ModalKind, null>) => setModal(m), []);
-  const closeModal = useCallback(() => setModal(null), []);
+  const openModal = useCallback(
+    (kind: Exclude<ModalKind, null>, payload?: Record<string, unknown>, onDone?: () => void) =>
+      setModal({ kind, payload, onDone }),
+    [],
+  );
+  const closeModal = useCallback(() => setModal({ kind: null }), []);
 
   const value = useMemo<AppStore>(
     () => ({
-      theme,
-      toggleTheme,
-      toast,
-      showToast,
-      overtime,
-      addOvertime,
-      deleteOvertime,
-      modal,
-      openModal,
-      closeModal,
+      theme, toggleTheme, toast, toastKind, showToast, me, setMe, modal, openModal, closeModal,
     }),
-    [theme, toggleTheme, toast, showToast, overtime, addOvertime, deleteOvertime, modal, openModal, closeModal],
+    [theme, toggleTheme, toast, toastKind, showToast, me, modal, openModal, closeModal],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

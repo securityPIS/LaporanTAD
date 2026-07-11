@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/lib/store";
-import { Chrome } from "@/components/layout/Chrome";
 import { Toast } from "@/components/shared/Toast";
+import { getCurrentUser } from "@/lib/session";
 
 const sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -31,18 +31,18 @@ export const viewport: Viewport = {
   themeColor: "#2a6fdb",
 };
 
-// Set tema sebelum paint agar tidak ada kedip (no-flash).
 const NO_FLASH = `(function(){try{var t=localStorage.getItem('ltad-theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`;
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const me = await getCurrentUser();
   return (
     <html lang="id" suppressHydrationWarning className={`${sans.variable} ${mono.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: NO_FLASH }} />
       </head>
       <body>
-        <AppProvider>
-          <Chrome>{children}</Chrome>
+        <AppProvider initialMe={me}>
+          {children}
           <Toast />
         </AppProvider>
       </body>
