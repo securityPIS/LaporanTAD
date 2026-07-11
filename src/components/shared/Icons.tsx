@@ -1,0 +1,165 @@
+import type { CSSProperties, ReactNode } from "react";
+
+// Ikon garis (stroke) memakai currentColor — warna dikontrol pemanggil.
+const PATHS: Record<string, ReactNode> = {
+  logo: (
+    <>
+      <path d="M9 11l3 3L22 4" />
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+    </>
+  ),
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4.5" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </>
+  ),
+  moon: <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />,
+  home: <path d="M3 10l9-7 9 7v9a2 2 0 0 1-2 2h-4v-6h-6v6H5a2 2 0 0 1-2-2z" />,
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="3" y="4" width="18" height="18" rx="2.5" />
+      <path d="M8 2v4M16 2v4M3 10h18" />
+    </>
+  ),
+  calendarDots: (
+    <>
+      <rect x="3" y="4" width="18" height="18" rx="2.5" />
+      <path d="M8 2v4M16 2v4M3 10h18M8 15h.01M12 15h.01M16 15h.01" />
+    </>
+  ),
+  doc: (
+    <>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+    </>
+  ),
+  docCheck: (
+    <>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6M9 15l2 2 4-4" />
+    </>
+  ),
+  globe: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20" />
+    </>
+  ),
+  plus: <path d="M12 5v14M5 12h14" />,
+  trash: <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />,
+  chevronLeft: <path d="M15 18l-6-6 6-6" />,
+  chevronRight: <path d="M9 18l6-6-6-6" />,
+  search: (
+    <>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4-4" />
+    </>
+  ),
+  download: <path d="M12 3v12M7 10l5 5 5-5M5 21h14" />,
+  upload: <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />,
+  close: <path d="M18 6L6 18M6 6l12 12" />,
+  edit: <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />,
+  users: (
+    <>
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+    </>
+  ),
+  usersMulti: (
+    <>
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+    </>
+  ),
+  badge: (
+    <>
+      <path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+      <path d="M12 15v6l-2-1.5L8 21v-4M12 3v2" />
+    </>
+  ),
+  dashboard: (
+    <>
+      <rect x="3" y="3" width="7" height="9" rx="1.5" />
+      <rect x="14" y="3" width="7" height="5" rx="1.5" />
+      <rect x="14" y="12" width="7" height="9" rx="1.5" />
+      <rect x="3" y="16" width="7" height="5" rx="1.5" />
+    </>
+  ),
+  barChart: (
+    <>
+      <path d="M3 3v18h18" />
+      <rect x="7" y="11" width="3" height="7" />
+      <rect x="12" y="7" width="3" height="11" />
+      <rect x="17" y="13" width="3" height="5" />
+    </>
+  ),
+  check: <path d="M20 6L9 17l-5-5" />,
+};
+
+export type IconName = keyof typeof PATHS;
+
+export function Icon({
+  name,
+  size = 24,
+  strokeWidth = 2,
+  className,
+  style,
+}: {
+  name: IconName;
+  size?: number;
+  strokeWidth?: number;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      style={style}
+      aria-hidden="true"
+    >
+      {PATHS[name]}
+    </svg>
+  );
+}
+
+/** Baris status telepon (jam + sinyal/wifi/baterai) — dekoratif. */
+export function StatusBar() {
+  return (
+    <div className="flex h-[30px] flex-none items-center justify-between bg-surface px-5 text-xs font-bold text-text">
+      <span className="font-mono">16.24</span>
+      <span className="flex items-center gap-[5px] text-muted">
+        <svg width="16" height="11" viewBox="0 0 18 12" fill="currentColor">
+          <rect x="0" y="7" width="3" height="5" rx="1" />
+          <rect x="5" y="4" width="3" height="8" rx="1" />
+          <rect x="10" y="1.5" width="3" height="10.5" rx="1" />
+          <rect x="15" y="0" width="3" height="12" rx="1" opacity=".35" />
+        </svg>
+        <svg width="16" height="12" viewBox="0 0 20 14" fill="none" stroke="currentColor" strokeWidth="1.6">
+          <path d="M1 4.5C4 1.5 8 0 10 0s6 1.5 9 4.5M4 7.5C6 5.5 8.2 4.7 10 4.7s4 .8 6 2.8" />
+          <circle cx="10" cy="11.5" r="1.4" fill="currentColor" stroke="none" />
+        </svg>
+        <svg width="24" height="12" viewBox="0 0 26 13" fill="none">
+          <rect x="1" y="1" width="21" height="11" rx="3" stroke="currentColor" strokeWidth="1.4" />
+          <rect x="3" y="3" width="15" height="7" rx="1.5" fill="currentColor" />
+          <rect x="23" y="4" width="2.5" height="5" rx="1.2" fill="currentColor" />
+        </svg>
+      </span>
+    </div>
+  );
+}
