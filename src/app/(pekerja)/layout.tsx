@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser, getSessionEmail, gatePath } from "@/lib/session";
 import { TopBar } from "@/components/layout/TopBar";
-import { PhoneFrame } from "@/components/layout/PhoneFrame";
+import { PekerjaShell } from "@/components/layout/PekerjaShell";
 import { ModalHost } from "@/components/forms/ModalHost";
 
 // Gerbang server: hanya pengguna aktif yang boleh mengakses halaman pekerja.
@@ -13,7 +13,7 @@ export default async function PekerjaLayout({ children }: { children: React.Reac
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text">
       <TopBar />
-      <PhoneFrame>{children}</PhoneFrame>
+      <PekerjaShell>{children}</PekerjaShell>
       <ModalHost />
     </div>
   );
