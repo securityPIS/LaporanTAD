@@ -26,6 +26,11 @@ yarn-error.log*
 # local dev data (memory driver + local file storage)
 /.data/
 
+# credentials / service account keys (JANGAN commit)
+/key/
+gas/.clasp.json
+.clasprc.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
