@@ -5,6 +5,7 @@
  *
  * Jalankan: `npm run seed` (pastikan env terisi untuk produksi).
  */
+import "./_env";
 import { db } from "../src/lib/db";
 import { buildSeed } from "../src/lib/seed-data";
 import type { TableName } from "../src/lib/db/tables";
