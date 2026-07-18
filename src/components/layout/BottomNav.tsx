@@ -18,7 +18,7 @@ const LAINNYA = ["/lainnya", "/dinas", "/pekerja", "/dokumen", "/profil"];
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="z-10 mx-3 mb-3 flex h-[64px] flex-none items-stretch gap-1 rounded-3xl bg-surface px-[6px] shadow-lg">
+    <nav className="fixed inset-x-3 bottom-3 z-20 flex h-[64px] flex-none items-stretch gap-1 rounded-3xl bg-surface px-[6px] shadow-lg wide:static wide:inset-x-0 wide:mx-3 wide:mb-3">
       {TABS.map((t) => {
         const active = t.key === "lainnya" ? LAINNYA.includes(pathname) : pathname === `/${t.key}`;
         return (

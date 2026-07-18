@@ -163,29 +163,3 @@ export function Icon({
     </svg>
   );
 }
-
-/** Baris status telepon (jam + sinyal/wifi/baterai) — dekoratif. */
-export function StatusBar() {
-  return (
-    <div className="flex h-[30px] flex-none items-center justify-between bg-surface px-5 text-xs font-bold text-text">
-      <span className="font-mono">16.24</span>
-      <span className="flex items-center gap-[5px] text-muted">
-        <svg width="16" height="11" viewBox="0 0 18 12" fill="currentColor">
-          <rect x="0" y="7" width="3" height="5" rx="1" />
-          <rect x="5" y="4" width="3" height="8" rx="1" />
-          <rect x="10" y="1.5" width="3" height="10.5" rx="1" />
-          <rect x="15" y="0" width="3" height="12" rx="1" opacity=".35" />
-        </svg>
-        <svg width="16" height="12" viewBox="0 0 20 14" fill="none" stroke="currentColor" strokeWidth="1.6">
-          <path d="M1 4.5C4 1.5 8 0 10 0s6 1.5 9 4.5M4 7.5C6 5.5 8.2 4.7 10 4.7s4 .8 6 2.8" />
-          <circle cx="10" cy="11.5" r="1.4" fill="currentColor" stroke="none" />
-        </svg>
-        <svg width="24" height="12" viewBox="0 0 26 13" fill="none">
-          <rect x="1" y="1" width="21" height="11" rx="3" stroke="currentColor" strokeWidth="1.4" />
-          <rect x="3" y="3" width="15" height="7" rx="1.5" fill="currentColor" />
-          <rect x="23" y="4" width="2.5" height="5" rx="1.2" fill="currentColor" />
-        </svg>
-      </span>
-    </div>
-  );
-}

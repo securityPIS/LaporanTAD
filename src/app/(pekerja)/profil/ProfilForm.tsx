@@ -70,7 +70,7 @@ export function ProfilForm({ user, hubungan, shift }: { user: UserRow; hubungan:
         <div className="mt-[2px] text-[12.5px] font-semibold text-faint">{user.email} · {user.nopek}</div>
       </div>
 
-      <div className="flex flex-col gap-3 px-[18px] pb-6 pt-[14px]">
+      <div className="flex flex-col gap-3 px-[18px] pb-28 pt-[14px]">
         <Field label="Nama lengkap"><input className={INP} value={form.nama_lengkap} onChange={(e) => set("nama_lengkap", e.target.value)} /></Field>
         <Field label="No. telepon"><input className={INP} value={form.no_telp} onChange={(e) => set("no_telp", e.target.value)} /></Field>
         <div className="flex gap-3">

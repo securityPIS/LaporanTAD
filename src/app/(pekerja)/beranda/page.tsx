@@ -73,14 +73,14 @@ export default async function BerandaPage() {
             <div className="mt-[1px] text-[22px] font-extrabold tracking-[-.4px]">{me.nama_lengkap}</div>
             <div className="mt-[3px] text-xs font-semibold text-faint">{fmtLong(today)}</div>
           </div>
-          <div className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-2xl bg-accent-weak text-base font-extrabold text-accent">
+          <div className="clay-3d flex h-[46px] w-[46px] flex-none items-center justify-center rounded-2xl bg-accent-weak text-base font-extrabold text-accent">
             {me.nama_lengkap.split(" ").slice(0, 2).map((s) => s[0]).join("")}
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 px-[18px] pb-1 pt-[14px]">
-        <div className="relative col-span-2 overflow-hidden rounded-[18px] p-[18px] text-white shadow" style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-ink))" }}>
+        <div className="clay relative col-span-2 overflow-hidden rounded-3xl p-[18px] text-white" style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-ink))" }}>
           <div className="absolute -right-8 -top-8 h-[120px] w-[120px] rounded-full bg-white/10" />
           <div className="text-xs font-semibold opacity-90">Total lembur {BULANS[Number(month.slice(5)) - 1]} {tahun}</div>
           <div className="mt-[6px] flex items-baseline gap-[6px]">
@@ -90,20 +90,24 @@ export default async function BerandaPage() {
           <div className="mt-1 text-[11.5px] opacity-80">dari {bulanRows.length} catatan · sisa kuota mingguan {fmtJamHHMM(sisaMinggu)} jam</div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface-2 p-[15px]">
-          <div className="flex items-center gap-[7px] text-cuti">
-            <Icon name="calendar" size={16} />
+        <div className="clay-sm rounded-3xl bg-surface p-[15px]">
+          <div className="flex items-center gap-[8px] text-cuti">
+            <span className="clay-3d flex h-8 w-8 items-center justify-center rounded-xl bg-cuti-weak">
+              <Icon name="calendar" size={16} />
+            </span>
             <span className="text-xs font-bold">Sisa cuti</span>
           </div>
-          <div className="mt-[7px] font-mono text-[26px] font-bold">
+          <div className="mt-[9px] font-mono text-[26px] font-bold">
             {saldo.sisa} <span className="font-sans text-[13px] text-faint">hari</span>
           </div>
           <div className="mt-[2px] text-[11px] text-faint">dari {saldo.kuota + saldo.penyesuaian} hari / tahun</div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface-2 p-[15px]">
-          <div className="flex items-center gap-[7px] text-dinas">
-            <Icon name="globe" size={16} />
+        <div className="clay-sm rounded-3xl bg-surface p-[15px]">
+          <div className="flex items-center gap-[8px] text-dinas">
+            <span className="clay-3d flex h-8 w-8 items-center justify-center rounded-xl bg-dinas-weak">
+              <Icon name="globe" size={16} />
+            </span>
             <span className="text-xs font-bold">Terdekat</span>
           </div>
           {upcoming ? (
@@ -121,9 +125,9 @@ export default async function BerandaPage() {
         <div className="mb-3 text-xs font-bold uppercase tracking-[.5px] text-muted">Menu Cepat</div>
         <div className="grid grid-cols-4 gap-[10px]">
           {MENU.map((m) => (
-            <Link key={m.label} href={m.href} className="flex flex-col items-center gap-[7px] rounded-[15px] border border-border bg-surface p-[13px_4px] text-text">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: m.bg, color: m.fg }}>
-                <Icon name={m.icon} size={20} />
+            <Link key={m.label} href={m.href} className="clay-sm clay-press flex flex-col items-center gap-[9px] rounded-2xl bg-surface p-[14px_4px] text-text transition-all">
+              <span className="clay-3d flex h-11 w-11 items-center justify-center rounded-2xl" style={{ background: m.bg, color: m.fg }}>
+                <Icon name={m.icon} size={21} />
               </span>
               <span className="text-[11px] font-bold">{m.label}</span>
             </Link>
@@ -131,15 +135,15 @@ export default async function BerandaPage() {
         </div>
       </div>
 
-      <div className="px-[18px] pb-6 pt-4">
+      <div className="px-[18px] pb-28 pt-4">
         <div className="mb-3 flex items-center justify-between">
           <div className="text-xs font-bold uppercase tracking-[.5px] text-muted">Aktivitas Terakhir</div>
           <Link href="/lembur" className="text-xs font-bold text-accent">Lihat semua</Link>
         </div>
-        <div className="flex flex-col gap-[9px]">
-          {recent.length === 0 && <div className="rounded-[14px] border border-border bg-surface px-[13px] py-4 text-center text-[12.5px] text-faint">Belum ada aktivitas lembur.</div>}
+        <div className="flex flex-col gap-[11px]">
+          {recent.length === 0 && <div className="clay-sm rounded-2xl bg-surface px-[13px] py-4 text-center text-[12.5px] text-faint">Belum ada aktivitas lembur.</div>}
           {recent.map((r) => (
-            <div key={r.id} className="flex items-center gap-3 rounded-[14px] border border-border bg-surface px-[13px] py-3">
+            <div key={r.id} className="clay-sm flex items-center gap-3 rounded-2xl bg-surface px-[14px] py-3">
               <span className="h-2 w-2 flex-none rounded-full" style={{ background: r.dot }} />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[13px] font-bold">{r.ket}</div>
