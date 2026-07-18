@@ -1,0 +1,45 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LaporanTAD">
+  <defs>
+    <!-- Gradien clay biru: sorotan kiri-atas → biru dalam kanan-bawah -->
+    <linearGradient id="clayBg" x1="70" y1="52" x2="452" y2="470" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6f92ff"/>
+      <stop offset="0.52" stop-color="#4a72f0"/>
+      <stop offset="1" stop-color="#2c50c4"/>
+    </linearGradient>
+    <linearGradient id="markGrad" x1="150" y1="180" x2="392" y2="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dbe6ff"/>
+    </linearGradient>
+    <radialGradient id="topGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(150 118) rotate(52) scale(300 300)">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="botShade" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(388 402) rotate(-130) scale(280 280)">
+      <stop offset="0" stop-color="#1a2f7a" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#1a2f7a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="markShadow" x="80" y="120" width="380" height="320" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#12246b" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle clay -->
+  <rect x="24" y="24" width="464" height="464" rx="132" fill="url(#clayBg)"/>
+  <rect x="24" y="24" width="464" height="464" rx="132" fill="url(#topGlow)"/>
+  <rect x="24" y="24" width="464" height="464" rx="132" fill="url(#botShade)"/>
+  <!-- Cincin sorotan tipis (rim light) untuk kesan timbul -->
+  <rect x="30" y="30" width="452" height="452" rx="126" fill="none" stroke="#ffffff" stroke-opacity="0.20" stroke-width="3"/>
+
+  <!-- Tanda centang tebal + sapuan (report disetujui / selesai) -->
+  <g filter="url(#markShadow)">
+    <path d="M156 268 L228 344 L392 168"
+      fill="none" stroke="url(#markGrad)" stroke-width="50"
+      stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- Percikan aksen modern di ujung sapuan -->
+  <circle cx="392" cy="168" r="21" fill="#ffffff"/>
+  <circle cx="392" cy="168" r="21" fill="url(#topGlow)"/>
+  <circle cx="345" cy="140" r="9" fill="#ffffff" fill-opacity="0.85"/>
+</svg>
