@@ -1,4 +1,3 @@
-import { StatusBar } from "@/components/shared/Icons";
 import { BottomNav } from "./BottomNav";
 
 /**
@@ -12,7 +11,6 @@ export function PhoneFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-1 bg-surface wide:items-start wide:justify-center wide:overflow-auto wide:bg-stage wide:px-4 wide:py-[26px]">
       <div className="relative flex h-[calc(100vh-76px)] w-full flex-col overflow-hidden bg-surface wide:h-[min(858px,calc(100vh-128px))] wide:w-[414px] wide:rounded-[42px] wide:shadow-lg">
-        <StatusBar />
         {children}
         <BottomNav />
       </div>
