@@ -66,6 +66,19 @@ export function AppProvider({
     } catch {
       /* abaikan */
     }
+    // Selaraskan warna status bar (jam/sinyal/baterai) dengan latar aplikasi.
+    try {
+      const c = t === "dark" ? "#12151f" : "#e8ecf7";
+      let m = document.querySelector('meta[name="theme-color"]');
+      if (!m) {
+        m = document.createElement("meta");
+        m.setAttribute("name", "theme-color");
+        document.head.appendChild(m);
+      }
+      m.setAttribute("content", c);
+    } catch {
+      /* abaikan */
+    }
   }, []);
 
   const toggleTheme = useCallback(() => {
