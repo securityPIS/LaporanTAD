@@ -44,30 +44,32 @@ export function AdminSidebar() {
   const pending = data?.pending ?? 0;
 
   return (
-    <aside className="border-b border-border bg-surface wide:sticky wide:top-14 wide:flex wide:h-[calc(100vh-56px)] wide:w-[248px] wide:flex-none wide:flex-col wide:overflow-y-auto wide:border-b-0 wide:border-r wide:px-3 wide:py-4">
-      <div className="flex gap-[6px] overflow-x-auto px-[14px] py-[10px] wide:flex-col wide:gap-4 wide:overflow-visible wide:p-0">
-        {GROUPS.map((group) => (
-          <div key={group.title} className="flex gap-[6px] wide:flex-col wide:gap-1">
-            <div className="hidden px-[10px] pt-1 text-[10.5px] font-bold uppercase tracking-[.6px] text-faint wide:block">
-              {group.title}
-            </div>
+    <aside className="bg-bg px-[clamp(10px,3vw,22px)] pb-1 pt-2 wide:sticky wide:top-[76px] wide:z-30 wide:flex wide:h-[calc(100vh-76px)] wide:flex-none wide:flex-col wide:items-center wide:px-0 wide:pb-4 wide:pl-[clamp(10px,3vw,22px)] wide:pr-1 wide:pt-0">
+      <div className="flex gap-[7px] overflow-x-auto rounded-2xl bg-surface p-[8px] shadow wide:h-full wide:w-[68px] wide:flex-col wide:gap-[5px] wide:overflow-visible wide:rounded-3xl wide:px-[10px] wide:py-4 wide:shadow-lg">
+        {GROUPS.map((group, gi) => (
+          <div key={group.title} className="flex gap-[7px] wide:contents">
+            {gi > 0 && (
+              <div className="hidden wide:my-[6px] wide:block wide:h-px wide:w-8 wide:self-center wide:bg-border-strong" />
+            )}
             {group.items.map((a) => {
               const active = pathname === a.href;
               return (
                 <Link
                   key={a.href}
                   href={a.href}
+                  aria-label={a.label}
                   className={cn(
-                    "flex items-center gap-2 whitespace-nowrap rounded-[10px] px-[15px] py-[9px] text-[13px] font-bold wide:w-full wide:gap-[11px] wide:rounded-[11px] wide:px-3 wide:py-[9px] wide:text-left wide:text-[13px]",
+                    "group relative flex items-center gap-2 whitespace-nowrap rounded-2xl px-[15px] py-[9px] text-[13px] font-bold transition-all wide:h-[44px] wide:w-[44px] wide:flex-none wide:justify-center wide:gap-0 wide:px-0 wide:py-0",
                     active
-                      ? "bg-accent text-white wide:bg-accent-weak wide:text-accent"
-                      : "bg-surface-3 text-muted wide:bg-transparent wide:text-muted",
+                      ? "bg-accent text-white shadow"
+                      : "bg-surface-2 text-muted shadow-inset hover:text-text wide:bg-transparent wide:shadow-none wide:hover:bg-surface-2 wide:hover:shadow-sm",
                   )}
                 >
-                  <Icon name={a.icon} size={17} />
-                  <span className="flex-1">{a.label}</span>
+                  <Icon name={a.icon} size={18} strokeWidth={2.1} />
+                  <span className="wide:hidden">{a.label}</span>
+                  <span className="hidden rail-tip wide:block">{a.label}</span>
                   {a.badge && pending > 0 && (
-                    <span className="rounded-full bg-libur px-[7px] py-[1px] text-[10px] font-extrabold text-white">
+                    <span className="ml-auto rounded-full bg-libur px-[7px] py-[1px] text-[10px] font-extrabold text-white wide:absolute wide:right-[2px] wide:top-[2px] wide:ml-0 wide:px-[5px] wide:py-0 wide:leading-[15px] wide:shadow-sm">
                       {pending}
                     </span>
                   )}

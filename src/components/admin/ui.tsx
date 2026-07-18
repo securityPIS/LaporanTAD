@@ -5,13 +5,13 @@ import { Icon, type IconName } from "@/components/shared/Icons";
 export const TH = "whitespace-nowrap px-4 py-[13px] text-[11px] font-bold uppercase tracking-[.4px] text-muted text-left";
 export const TD = "whitespace-nowrap px-4 py-3 text-[13px] text-muted";
 export const SELECT =
-  "h-[42px] cursor-pointer rounded-[11px] border border-border bg-surface px-[14px] text-[13.5px] font-semibold text-text outline-none";
+  "h-[42px] cursor-pointer rounded-xl bg-surface-2 px-[14px] text-[13.5px] font-semibold text-text shadow-inset outline-none focus:ring-2 focus:ring-accent";
 export const INPUT =
-  "h-[42px] w-full rounded-[11px] border border-border bg-surface px-[14px] text-[13.5px] text-text outline-none";
+  "h-[42px] w-full rounded-xl bg-surface-2 px-[14px] text-[13.5px] text-text shadow-inset outline-none focus:ring-2 focus:ring-accent";
 export const BTN =
-  "flex h-10 items-center gap-2 rounded-[11px] border border-border-strong bg-surface px-4 text-[13px] font-bold text-text";
+  "clay-press flex h-10 items-center gap-2 rounded-xl bg-surface px-4 text-[13px] font-bold text-text shadow transition-all";
 export const BTN_PRIMARY =
-  "flex h-10 items-center gap-2 rounded-[11px] bg-accent px-4 text-[13px] font-extrabold text-white";
+  "clay-press flex h-10 items-center gap-2 rounded-xl bg-accent px-4 text-[13px] font-extrabold text-white shadow transition-all";
 
 export function AdminHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: React.ReactNode }) {
   return (
@@ -26,14 +26,14 @@ export function AdminHeader({ title, subtitle, action }: { title: string; subtit
 }
 
 export function Card({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={`rounded-2xl border border-border bg-surface shadow-sm ${className ?? ""}`}>{children}</div>;
+  return <div className={`rounded-2xl bg-surface shadow ${className ?? ""}`}>{children}</div>;
 }
 
 export function IconBtn({ icon, onClick, tone = "muted", label }: { icon: IconName; onClick: () => void; tone?: "muted" | "libur" | "accent"; label: string }) {
   const color = tone === "libur" ? "var(--libur)" : tone === "accent" ? "var(--accent)" : "var(--muted)";
   return (
-    <button onClick={onClick} aria-label={label} className="flex h-[32px] w-[32px] items-center justify-center rounded-[9px] border border-border bg-surface-2" style={{ color }}>
-      <Icon name={icon} size={15} />
+    <button onClick={onClick} aria-label={label} className="clay-press flex h-[34px] w-[34px] items-center justify-center rounded-xl bg-surface-2 shadow-sm transition-all" style={{ color }}>
+      <Icon name={icon} size={15} strokeWidth={2.1} />
     </button>
   );
 }

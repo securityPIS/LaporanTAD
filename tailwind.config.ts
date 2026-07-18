@@ -45,6 +45,14 @@ const config: Config = {
         sm: "var(--shadow-sm)",
         DEFAULT: "var(--shadow)",
         lg: "var(--shadow-lg)",
+        inset: "var(--shadow-inset)",
+      },
+      // Radius lebih membulat → kesan "clay" yang empuk.
+      borderRadius: {
+        lg: "0.85rem",
+        xl: "1.1rem",
+        "2xl": "1.5rem",
+        "3xl": "2rem",
       },
       screens: {
         // ambang responsif desain: sempit < 860px, lebar >= 860px

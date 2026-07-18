@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/cn";
 import { Icon, type IconName } from "@/components/shared/Icons";
 
 const TABS: { key: string; label: string; icon: IconName }[] = [
@@ -17,17 +18,19 @@ const LAINNYA = ["/lainnya", "/dinas", "/pekerja", "/dokumen", "/profil"];
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="z-10 flex h-[66px] flex-none items-stretch border-t border-border bg-surface px-1">
+    <nav className="z-10 mx-3 mb-3 flex h-[64px] flex-none items-stretch gap-1 rounded-3xl bg-surface px-[6px] shadow-lg">
       {TABS.map((t) => {
         const active = t.key === "lainnya" ? LAINNYA.includes(pathname) : pathname === `/${t.key}`;
         return (
           <Link
             key={t.key}
             href={`/${t.key}`}
-            className="flex flex-1 flex-col items-center justify-center gap-1 pt-1"
-            style={{ color: active ? "var(--accent)" : "var(--faint)" }}
+            className={cn(
+              "flex flex-1 flex-col items-center justify-center gap-[3px] rounded-2xl transition-all",
+              active ? "bg-accent text-white shadow-sm" : "text-faint",
+            )}
           >
-            <Icon name={t.icon} size={21} />
+            <Icon name={t.icon} size={20} strokeWidth={2.1} />
             <span className="text-[10px] font-bold">{t.label}</span>
           </Link>
         );

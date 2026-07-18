@@ -3,50 +3,56 @@
 @tailwind utilities;
 
 /* =========================================================
-   Token desain — diporting persis dari LaporanTAD.dc.html
+   Token desain — gaya "Claymorphism"
+   Permukaan empuk & membulat dengan bayangan ganda (gelap di
+   kanan-bawah + sorotan terang di kiri-atas) yang memberi kesan
+   tanah liat (clay) yang timbul. Bayangan inset dipakai untuk
+   elemen "tertekan" (input, state aktif).
    :root = tema terang · [data-theme="dark"] = tema gelap
    ========================================================= */
 :root {
-  --bg: #eef1f5;
-  --stage: #e7ebf1;
+  --bg: #e8ecf7;
+  --stage: #e2e7f4;
   --surface: #ffffff;
-  --surface-2: #f6f8fb;
-  --surface-3: #eef1f6;
-  --border: #e3e7ee;
-  --border-strong: #d3d9e3;
-  --text: #131720;
-  --muted: #5d6774;
-  --faint: #9aa3b1;
-  --accent: #2a6fdb;
-  --accent-ink: #1c50a8;
-  --accent-weak: #e9f1fd;
-  --libur: #d64545;
+  --surface-2: #eef2fc;
+  --surface-3: #e5ebf8;
+  --border: #e7ebf7;
+  --border-strong: #d5dcee;
+  --text: #1b2333;
+  --muted: #5f6a83;
+  --faint: #97a1bb;
+  --accent: #4a72f0;
+  --accent-ink: #2f52c4;
+  --accent-weak: #e8eefe;
+  --libur: #e0574f;
   --libur-weak: #fdeceb;
-  --cuti: #d97528;
-  --cuti-weak: #fbefe3;
-  --dinas: #5a63cf;
-  --dinas-weak: #ecedfb;
-  --lembur: #1f8a5b;
-  --lembur-weak: #e6f4ec;
-  --shadow-sm: 0 1px 2px rgba(20, 28, 45, 0.06);
-  --shadow: 0 6px 24px -10px rgba(20, 28, 45, 0.18);
-  --shadow-lg: 0 30px 70px -30px rgba(20, 28, 45, 0.45);
+  --cuti: #e08133;
+  --cuti-weak: #fbefe1;
+  --dinas: #6a71e0;
+  --dinas-weak: #ecedfc;
+  --lembur: #26956a;
+  --lembur-weak: #e6f5ee;
+  /* Bayangan clay — pasangan gelap (kanan-bawah) + sorotan (kiri-atas) */
+  --shadow-sm: 4px 4px 10px rgba(159, 174, 214, 0.35), -3px -3px 8px rgba(255, 255, 255, 0.9);
+  --shadow: 10px 10px 24px rgba(155, 171, 214, 0.42), -7px -7px 18px rgba(255, 255, 255, 0.95);
+  --shadow-lg: 22px 22px 54px rgba(146, 163, 210, 0.48), -12px -12px 34px rgba(255, 255, 255, 0.9);
+  --shadow-inset: inset 4px 4px 9px rgba(155, 171, 214, 0.42), inset -4px -4px 9px rgba(255, 255, 255, 0.92);
 }
 
 [data-theme="dark"] {
-  --bg: #0b0e14;
-  --stage: #0b0e14;
-  --surface: #151a22;
-  --surface-2: #1b212b;
-  --surface-3: #212934;
-  --border: #262d39;
-  --border-strong: #333c4a;
-  --text: #e9edf3;
-  --muted: #9aa4b3;
-  --faint: #667081;
-  --accent: #5591ff;
-  --accent-ink: #9dbfff;
-  --accent-weak: #172438;
+  --bg: #12151f;
+  --stage: #0e111a;
+  --surface: #1b2130;
+  --surface-2: #222b3d;
+  --surface-3: #29344c;
+  --border: #283044;
+  --border-strong: #38435c;
+  --text: #e8ecf6;
+  --muted: #a0abc2;
+  --faint: #6c778f;
+  --accent: #6f92ff;
+  --accent-ink: #aac2ff;
+  --accent-weak: #1e2942;
   --libur: #f0736f;
   --libur-weak: #2a1719;
   --cuti: #eb9455;
@@ -55,9 +61,10 @@
   --dinas-weak: #191b2c;
   --lembur: #4fc08a;
   --lembur-weak: #10241b;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 30px 70px -25px rgba(0, 0, 0, 0.75);
+  --shadow-sm: 4px 4px 10px rgba(0, 0, 0, 0.5), -3px -3px 8px rgba(255, 255, 255, 0.035);
+  --shadow: 10px 10px 26px rgba(0, 0, 0, 0.55), -7px -7px 18px rgba(255, 255, 255, 0.04);
+  --shadow-lg: 22px 22px 56px rgba(0, 0, 0, 0.66), -12px -12px 34px rgba(255, 255, 255, 0.035);
+  --shadow-inset: inset 4px 4px 9px rgba(0, 0, 0, 0.55), inset -4px -4px 9px rgba(255, 255, 255, 0.045);
 }
 
 * {
@@ -103,6 +110,66 @@ select,
 textarea,
 button {
   font-family: inherit;
+}
+
+/* =========================================================
+   Utilitas Claymorphism
+   ========================================================= */
+.clay {
+  box-shadow: var(--shadow);
+}
+.clay-sm {
+  box-shadow: var(--shadow-sm);
+}
+.clay-lg {
+  box-shadow: var(--shadow-lg);
+}
+.clay-inset {
+  box-shadow: var(--shadow-inset);
+}
+/* Tekan lembut saat aktif — memberi umpan balik "clay ditekan" */
+.clay-press:active {
+  box-shadow: var(--shadow-inset);
+  transform: translateY(1px);
+}
+
+/* Tooltip rail sidebar (ikon-saja): label muncul di kanan saat hover/fokus.
+   Elemen pemicu memakai kelas `group`. */
+.rail-tip {
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px) scale(0.96);
+  white-space: nowrap;
+  padding: 7px 12px;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.1px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+  z-index: 60;
+}
+.rail-tip::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translateY(-50%) rotate(45deg);
+  background: var(--surface);
+  border-radius: 2px;
+  box-shadow: -3px 3px 8px rgba(146, 163, 210, 0.28);
+}
+.group:hover > .rail-tip,
+.group:focus-visible > .rail-tip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0) scale(1);
 }
 
 @keyframes ltFade {

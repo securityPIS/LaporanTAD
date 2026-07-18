@@ -15,8 +15,8 @@ export function PekerjaShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-0 flex-1 flex-col wide:flex-row">
       <PekerjaSidebar />
 
-      <div className="flex min-w-0 flex-1 wide:h-[calc(100vh-56px)] wide:justify-center wide:overflow-hidden wide:bg-bg wide:px-6 wide:py-6">
-        <div className="relative flex h-[calc(100vh-56px)] w-full flex-col overflow-hidden bg-surface wide:h-full wide:max-w-[960px] wide:rounded-2xl wide:border wide:border-border wide:shadow-sm">
+      <div className="flex min-w-0 flex-1 wide:h-[calc(100vh-76px)] wide:justify-center wide:overflow-hidden wide:bg-bg wide:pr-[clamp(10px,3vw,22px)] wide:py-3 wide:pl-2">
+        <div className="relative flex h-[calc(100vh-76px)] w-full flex-col overflow-hidden bg-surface wide:h-full wide:max-w-[980px] wide:rounded-3xl wide:shadow-lg">
           {/* StatusBar palsu hanya untuk mobile */}
           <div className="wide:hidden">
             <StatusBar />

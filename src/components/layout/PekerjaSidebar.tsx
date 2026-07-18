@@ -25,47 +25,47 @@ function initials(name: string): string {
     .join("");
 }
 
-/** Sidebar navigasi pekerja — hanya tampil di desktop (mobile pakai BottomNav). */
+/**
+ * Sidebar navigasi pekerja — rail mengambang (floating) khusus desktop.
+ * Hanya menampilkan ikon; label muncul sebagai tooltip saat hover.
+ * (Mobile memakai BottomNav.)
+ */
 export function PekerjaSidebar() {
   const pathname = usePathname();
   const { me } = useApp();
 
   return (
-    <aside className="hidden wide:sticky wide:top-14 wide:flex wide:h-[calc(100vh-56px)] wide:w-[236px] wide:flex-none wide:flex-col wide:border-r wide:border-border wide:bg-surface wide:px-3 wide:py-4">
-      <div className="px-[10px] pb-[6px] pt-1 text-[11px] font-bold uppercase tracking-[.6px] text-faint">
-        Menu Pekerja
-      </div>
-
-      <nav className="flex flex-col gap-1">
+    <aside className="hidden wide:sticky wide:top-[76px] wide:z-30 wide:flex wide:h-[calc(100vh-76px)] wide:flex-none wide:flex-col wide:items-center wide:pb-4 wide:pl-[clamp(10px,3vw,22px)] wide:pr-1">
+      <nav className="flex h-full w-[68px] flex-col items-center gap-[6px] rounded-3xl bg-surface px-[10px] py-4 shadow-lg">
         {NAV.map((n) => {
           const active = pathname === n.href;
           return (
             <Link
               key={n.href}
               href={n.href}
+              aria-label={n.label}
               className={cn(
-                "flex items-center gap-[11px] rounded-[11px] px-3 py-[10px] text-[13.5px] font-bold transition-colors",
-                active ? "bg-accent-weak text-accent" : "text-muted hover:bg-surface-2 hover:text-text",
+                "group relative flex h-[46px] w-[46px] flex-none items-center justify-center rounded-2xl transition-all",
+                active
+                  ? "bg-accent text-white shadow"
+                  : "text-muted hover:bg-surface-2 hover:text-text hover:shadow-sm",
               )}
             >
-              <Icon name={n.icon} size={18} />
-              <span>{n.label}</span>
+              <Icon name={n.icon} size={20} strokeWidth={2.1} />
+              <span className="rail-tip">{n.label}</span>
             </Link>
           );
         })}
-      </nav>
 
-      {me && (
-        <div className="mt-auto flex items-center gap-[10px] border-t border-border px-2 py-[14px]">
-          <div className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-[10px] bg-accent-weak text-[12px] font-extrabold text-accent">
+        {me && (
+          <div className="group relative mt-auto flex h-[46px] w-[46px] flex-none items-center justify-center rounded-2xl bg-accent-weak text-[12.5px] font-extrabold text-accent shadow-inset">
             {initials(me.nama_lengkap)}
+            <span className="rail-tip">
+              {me.nama_lengkap} · {me.role === "admin" ? "Admin" : "Pekerja"}
+            </span>
           </div>
-          <div className="min-w-0">
-            <div className="truncate text-[12.5px] font-bold">{me.nama_lengkap}</div>
-            <div className="text-[10.5px] text-faint">{me.role === "admin" ? "Admin" : "Pekerja"}</div>
-          </div>
-        </div>
-      )}
+        )}
+      </nav>
     </aside>
   );
 }

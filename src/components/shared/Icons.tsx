@@ -135,7 +135,7 @@ export type IconName = keyof typeof PATHS;
 export function Icon({
   name,
   size = 24,
-  strokeWidth = 2,
+  strokeWidth = 2.1,
   className,
   style,
 }: {
