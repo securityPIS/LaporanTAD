@@ -28,10 +28,11 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#2a6fdb",
 };
 
-const NO_FLASH = `(function(){try{var t=localStorage.getItem('ltad-theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`;
+// Warna status bar (jam/sinyal/baterai) mengikuti latar aplikasi (--bg):
+// terang #e8ecf7 · gelap #12151f. Diset sedini mungkin agar tidak berkedip.
+const NO_FLASH = `(function(){try{var t=localStorage.getItem('ltad-theme')||'light';document.documentElement.setAttribute('data-theme',t);var c=t==='dark'?'#12151f':'#e8ecf7';var m=document.querySelector('meta[name="theme-color"]');if(!m){m=document.createElement('meta');m.setAttribute('name','theme-color');document.head.appendChild(m);}m.setAttribute('content',c);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const me = await getCurrentUser();

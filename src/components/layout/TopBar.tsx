@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/cn";
 import { Icon } from "@/components/shared/Icons";
+import { AppLogo } from "@/components/shared/AppLogo";
 
 function initials(name: string): string {
   return name.split(" ").slice(0, 2).map((s) => s[0]?.toUpperCase() ?? "").join("");
@@ -22,8 +23,8 @@ export function TopBar() {
     <header className="sticky top-0 z-40 h-[76px] flex-none bg-bg px-[clamp(10px,3vw,22px)] pb-[10px] pt-[14px]">
       <div className="flex h-[52px] items-center justify-between gap-3 rounded-2xl bg-surface px-[clamp(12px,2vw,18px)] shadow">
         <div className="flex min-w-0 items-center gap-[11px]">
-          <div className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-2xl bg-accent shadow-sm">
-            <Icon name="logo" size={18} strokeWidth={2.4} style={{ color: "#fff" }} />
+          <div className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-2xl shadow-sm">
+            <AppLogo size={34} />
           </div>
           <div className="min-w-0">
             <div className="text-[15px] font-extrabold leading-none tracking-[-.2px]">LaporanTAD</div>
