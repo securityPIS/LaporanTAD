@@ -40,6 +40,11 @@ export function apiUpload<T = unknown>(url: string, form: FormData): Promise<T> 
   return fetch(url, { method: "POST", body: form }).then(parse) as Promise<T>;
 }
 
+// Cache hasil GET per-URL selama sesi tab (stale-while-revalidate):
+// kembali ke menu yang baru dibuka menampilkan data terakhir tanpa spinner,
+// sambil revalidasi di belakang layar.
+const swrCache = new Map<string, unknown>();
+
 /** Hook pengambilan data ringan dengan status muat/galat + reload. */
 export function useData<T>(url: string | null): {
   data: T | undefined;
@@ -47,9 +52,11 @@ export function useData<T>(url: string | null): {
   loading: boolean;
   reload: () => void;
 } {
-  const [data, setData] = useState<T>();
+  const [data, setData] = useState<T | undefined>(() =>
+    url ? (swrCache.get(url) as T | undefined) : undefined,
+  );
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(Boolean(url));
+  const [loading, setLoading] = useState(Boolean(url) && !swrCache.has(url ?? ""));
   const [tick, setTick] = useState(0);
   const mounted = useRef(true);
 
@@ -65,10 +72,15 @@ export function useData<T>(url: string | null): {
       setLoading(false);
       return;
     }
-    setLoading(true);
+    const stale = swrCache.get(url) as T | undefined;
+    setData(stale);
+    setLoading(stale === undefined);
     setError(null);
     apiGet<T>(url)
-      .then((d) => mounted.current && setData(d))
+      .then((d) => {
+        swrCache.set(url, d);
+        if (mounted.current) setData(d);
+      })
       .catch((e) => mounted.current && setError(e.message))
       .finally(() => mounted.current && setLoading(false));
   }, [url, tick]);

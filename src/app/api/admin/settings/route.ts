@@ -1,7 +1,6 @@
 import { ok, readJson, route } from "@/lib/api";
 import { requireAdmin } from "@/lib/session";
 import { db } from "@/lib/db";
-import { invalidateSettings } from "@/lib/settings";
 import { writeAudit } from "@/lib/audit";
 import { z } from "zod";
 
@@ -25,7 +24,6 @@ export const PATCH = route(async (req) => {
       await db.insert("settings", { key, value: String(value), keterangan: "" });
     }
   }
-  invalidateSettings();
   await writeAudit({ actorEmail: admin.email, aksi: "ubah-settings", entitas: "settings", entitasId: "-", detail: data });
   return ok({ ok: true });
 });

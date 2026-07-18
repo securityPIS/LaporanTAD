@@ -1,5 +1,4 @@
 import { db } from "./db";
-import { cached, invalidate } from "./cache";
 import { AppError } from "./errors";
 import { newId } from "./id";
 import { nowWIB, periodeOf } from "./wib";
@@ -10,7 +9,7 @@ import { nowWIB, periodeOf } from "./wib";
  * bertanggal pada bulan itu ditolak (termasuk oleh admin).
  */
 export async function isPeriodeTerkunci(periode: string): Promise<boolean> {
-  const locks = await cached("period_locks", 30_000, () => db.all("period_locks"));
+  const locks = await db.all("period_locks");
   return locks.some((l) => l.periode === periode);
 }
 
@@ -34,15 +33,11 @@ export async function lockPeriode(periode: string, actorEmail: string) {
   const existing = await db.findOne("period_locks", (l) => l.periode === periode);
   if (existing) return existing;
   const row = { id: newId(), periode, locked_by: actorEmail, locked_at: nowWIB() };
-  const saved = await db.insert("period_locks", row);
-  invalidate("period_locks");
-  return saved;
+  return db.insert("period_locks", row);
 }
 
 export async function unlockPeriode(periode: string) {
   const existing = await db.findOne("period_locks", (l) => l.periode === periode);
   if (!existing) return false;
-  const ok = await db.deleteById("period_locks", existing.id);
-  invalidate("period_locks");
-  return ok;
+  return db.deleteById("period_locks", existing.id);
 }
