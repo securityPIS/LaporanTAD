@@ -1,4 +1,5 @@
 import { isSheetsConfigured } from "@/lib/env";
+import { cached, invalidate } from "@/lib/cache";
 import type { DbDriver } from "./driver";
 import { getMemoryDriver } from "./memory-driver";
 import { SheetsDriver } from "./sheets-driver";
@@ -35,14 +36,47 @@ async function ensureSeeded(): Promise<void> {
   return g.__ltadSeeded;
 }
 
+/**
+ * TTL cache baca per tabel (ARSITEKTUR §10: cache in-memory ber-TTL).
+ * Satu `all()` = satu request HTTP penuh ke Sheets API, jadi SEMUA tabel
+ * di-cache di lapisan ini — master lebih lama, transaksional singkat agar
+ * data pengguna tetap terasa segar. Setiap tulisan meng-invalidasi tabelnya.
+ */
+const CACHE_TTL: Record<TableName, number> = {
+  users: 60_000,
+  companies: 60_000,
+  master_options: 60_000,
+  holidays: 60_000,
+  leave_types: 60_000,
+  doc_templates: 60_000,
+  settings: 60_000,
+  period_locks: 30_000,
+  overtime: 15_000,
+  leaves: 15_000,
+  leave_balances: 15_000,
+  trips: 15_000,
+  documents: 15_000,
+  audit_log: 15_000,
+};
+
+const cacheKey = (table: TableName) => `tbl:${table}`;
+
+export function invalidateTable(table: TableName): void {
+  invalidate(cacheKey(table));
+}
+
 export const db = {
   async all<T extends TableName>(table: T): Promise<TableMap[T][]> {
     await ensureSeeded();
-    return driver().all(table);
+    const rows = await cached(cacheKey(table), CACHE_TTL[table], () => driver().all(table));
+    // Salinan array: pemanggil boleh sort/filter in-place tanpa merusak cache.
+    return rows.slice();
   },
   async insert<T extends TableName>(table: T, row: TableMap[T]): Promise<TableMap[T]> {
     await ensureSeeded();
-    return driver().insert(table, row);
+    const saved = await driver().insert(table, row);
+    invalidateTable(table);
+    return saved;
   },
   async updateById<T extends TableName>(
     table: T,
@@ -50,14 +84,19 @@ export const db = {
     patch: Partial<TableMap[T]>,
   ): Promise<TableMap[T] | null> {
     await ensureSeeded();
-    return driver().updateById(table, id, patch);
+    const saved = await driver().updateById(table, id, patch);
+    invalidateTable(table);
+    return saved;
   },
   async deleteById<T extends TableName>(table: T, id: string): Promise<boolean> {
     await ensureSeeded();
-    return driver().deleteById(table, id);
+    const ok = await driver().deleteById(table, id);
+    invalidateTable(table);
+    return ok;
   },
   async replaceAll<T extends TableName>(table: T, rows: TableMap[T][]): Promise<void> {
-    return driver().replaceAll(table, rows);
+    await driver().replaceAll(table, rows);
+    invalidateTable(table);
   },
   /** Cari satu baris berdasarkan predikat. */
   async findOne<T extends TableName>(

@@ -1,16 +1,10 @@
 import { db } from "@/lib/db";
-import { cached, invalidate } from "@/lib/cache";
 import type { UserRow } from "@/lib/db/tables";
 import { env } from "@/lib/env";
 
-const TAG = "users";
-
+// Cache + invalidasi ditangani lapisan `db` (lihat lib/db/index.ts).
 async function allUsers(): Promise<UserRow[]> {
-  return cached(TAG, 60_000, () => db.all("users"));
-}
-
-export function invalidateUsers() {
-  invalidate(TAG);
+  return db.all("users");
 }
 
 /** Terapkan promosi admin dari env ADMIN_EMAILS (tanpa mengubah data tersimpan). */
@@ -40,15 +34,11 @@ export async function nopekTaken(nopek: string, exceptId?: string): Promise<bool
 }
 
 export async function createUser(row: UserRow): Promise<UserRow> {
-  const saved = await db.insert("users", row);
-  invalidateUsers();
-  return saved;
+  return db.insert("users", row);
 }
 
 export async function updateUser(id: string, patch: Partial<UserRow>): Promise<UserRow | null> {
-  const saved = await db.updateById("users", id, patch);
-  invalidateUsers();
-  return saved;
+  return db.updateById("users", id, patch);
 }
 
 export async function listUsers(filter?: Partial<Pick<UserRow, "status" | "role">>): Promise<UserRow[]> {

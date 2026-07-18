@@ -28,16 +28,18 @@ export interface SaldoCuti {
 
 /** Saldo = kuota + penyesuaian − terpakai (hanya jenis potong_saldo). */
 export async function hitungSaldo(userId: string, tahun: number): Promise<SaldoCuti> {
-  const bal = await db.findOne("leave_balances", (b) => b.user_id === userId && b.tahun === tahun);
-  const kuota = bal?.kuota ?? (await getNumberSetting("default_kuota_cuti"));
+  const [bal, kuotaDefault, types, leaves] = await Promise.all([
+    db.findOne("leave_balances", (b) => b.user_id === userId && b.tahun === tahun),
+    getNumberSetting("default_kuota_cuti"),
+    db.all("leave_types"),
+    db.findMany("leaves", (l) => l.user_id === userId && l.tanggal_mulai.slice(0, 4) === String(tahun)),
+  ]);
+  const kuota = bal?.kuota ?? kuotaDefault;
   const penyesuaian = bal?.penyesuaian ?? 0;
-  const types = await db.all("leave_types");
   const potongIds = new Set(types.filter((t) => t.potong_saldo).map((t) => t.id));
-  const leaves = await db.findMany(
-    "leaves",
-    (l) => l.user_id === userId && l.tanggal_mulai.slice(0, 4) === String(tahun) && potongIds.has(l.leave_type_id),
-  );
-  const terpakai = leaves.reduce((a, l) => a + l.jumlah_hari, 0);
+  const terpakai = leaves
+    .filter((l) => potongIds.has(l.leave_type_id))
+    .reduce((a, l) => a + l.jumlah_hari, 0);
   return { tahun, kuota, penyesuaian, terpakai, sisa: kuota + penyesuaian - terpakai };
 }
 

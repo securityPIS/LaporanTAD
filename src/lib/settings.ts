@@ -1,5 +1,4 @@
 import { db } from "./db";
-import { cached, invalidate } from "./cache";
 
 const DEFAULTS = {
   default_kuota_cuti: 12,
@@ -10,11 +9,10 @@ const DEFAULTS = {
 
 export type SettingKey = keyof typeof DEFAULTS;
 
+// Tab `settings` sudah di-cache lapisan db; membentuk map per panggilan murah.
 async function map(): Promise<Record<string, string>> {
-  return cached("settings", 60_000, async () => {
-    const rows = await db.all("settings");
-    return Object.fromEntries(rows.map((r) => [r.key, r.value]));
-  });
+  const rows = await db.all("settings");
+  return Object.fromEntries(rows.map((r) => [r.key, r.value]));
 }
 
 /** Angka aturan bisnis dibaca dari tab `settings` (bukan hard-code). */
@@ -32,8 +30,4 @@ export async function getBatasLembur() {
     getNumberSetting("batas_lembur_mingguan"),
   ]);
   return { hariKerja, libur, mingguan };
-}
-
-export function invalidateSettings() {
-  invalidate("settings");
 }
