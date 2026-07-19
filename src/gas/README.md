@@ -39,8 +39,8 @@ variables → Actions**:
 | `GAS_SCRIPT_ID` | `scriptId` proyek Apps Script (lihat `.clasp.json` lokal atau URL editor GAS) |
 | `GAS_DEPLOYMENT_ID` | *(opsional)* ID deployment Web App yang sudah ada, agar **URL tidak berubah**. Lihat dengan `clasp deployments`. Bila kosong, dibuat deployment baru & URL-nya tampil di log — salin ke `GAS_WEBAPP_URL` di Vercel |
 
-Catatan: versi clasp di CI dipin `@google/clasp@2.4.2` — buat `CLASPRC_JSON`
-dengan versi clasp yang sepadan agar format kredensial cocok. Aktifkan **Apps
-Script API** di https://script.google.com/home/usersettings. Bila `appsscript.json`
-belum ada di `src/gas/`, workflow mengambilnya dari proyek remote otomatis;
-disarankan meng-commit manifest tersebut agar terversikan.
+Catatan: versi clasp di CI dipin `@google/clasp@3.3.0` — buat `CLASPRC_JSON`
+dengan clasp v3 (format `tokens.default`) agar cocok. Aktifkan **Apps Script API**
+di https://script.google.com/home/usersettings. Manifest `appsscript.json` sudah
+diversikan di `src/gas/`; workflow tetap punya *fallback* mengambilnya dari proyek
+remote bila suatu saat hilang.
