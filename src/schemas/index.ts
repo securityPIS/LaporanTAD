@@ -120,3 +120,17 @@ export const generateSchema = z.object({
   ttd_file_id: z.string().optional().default(""),
   ttd_data_url: z.string().optional().default(""),
 });
+
+// ── Generate SPKL per periode (agregasi banyak lembur → satu dokumen) ─────
+export const spklSchema = z
+  .object({
+    tanggal_mulai: tanggal,
+    tanggal_selesai: tanggal,
+    ttd_file_id: z.string().optional().default(""),
+    ttd_data_url: z.string().optional().default(""),
+  })
+  .refine((v) => v.tanggal_mulai <= v.tanggal_selesai, {
+    message: "Tanggal mulai tidak boleh setelah tanggal selesai",
+    path: ["tanggal_selesai"],
+  });
+export type SpklInput = z.infer<typeof spklSchema>;

@@ -45,6 +45,12 @@ export default function TemplatePage() {
     <div style={{ animation: "ltFade .3s ease both" }}>
       <AdminHeader title="Template Dokumen" subtitle="Google Docs ber-placeholder {{nama}}, {{nopek}}, {{ttd}}, …" />
 
+      <Card className="mt-5 p-4 text-[12.5px] leading-relaxed text-muted">
+        <p className="font-bold text-text">Konvensi placeholder</p>
+        <p className="mt-1"><code className="font-mono">{"{{field}}"}</code> untuk data tunggal/header — mis. <code className="font-mono">{"{{nama}}"}</code>, <code className="font-mono">{"{{nopek}}"}</code>, <code className="font-mono">{"{{periode}}"}</code>, <code className="font-mono">{"{{total_jam}}"}</code>, dan <code className="font-mono">{"{{ttd}}"}</code> (tempat gambar tanda tangan).</p>
+        <p className="mt-1"><b>SPKL</b> merangkum banyak lembur: buat <b>tabel</b> dengan satu baris data berisi placeholder ber-awalan <code className="font-mono">@</code> — <code className="font-mono">{"{{@no}}"}</code>, <code className="font-mono">{"{{@tanggal}}"}</code>, <code className="font-mono">{"{{@jenis}}"}</code>, <code className="font-mono">{"{{@jam}}"}</code>, <code className="font-mono">{"{{@total_jam}}"}</code>, <code className="font-mono">{"{{@keterangan}}"}</code>. Baris itu digandakan otomatis per catatan lembur.</p>
+      </Card>
+
       <Card className="mt-5 p-4">
         <div className="grid grid-cols-1 gap-2 wide:grid-cols-3">
           <input className={INPUT} placeholder="Nama template" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} />

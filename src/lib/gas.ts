@@ -10,6 +10,8 @@ export interface GasGeneratePayload {
   jenis: "spkl" | "spd" | "deklarasi_dinas" | "surat_cuti";
   gdoc_id: string;
   placeholders: Record<string, string>;
+  /** Baris tabel berulang; tiap objek mengisi placeholder {{@key}} pada baris template. */
+  rows?: Array<Record<string, string>>;
   ttd_file_id?: string;
   ttd_data_url?: string;
   output_folder: string;

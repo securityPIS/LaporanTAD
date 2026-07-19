@@ -48,6 +48,9 @@ function generateDoc(payload) {
     bodyEl.replaceText("\\{\\{" + key + "\\}\\}", String(ph[key] == null ? "" : ph[key]));
   });
 
+  // Baris tabel berulang {{@key}} (mis. daftar lembur pada SPKL).
+  fillRepeatingRows(bodyEl, payload.rows);
+
   // Sisipkan gambar TTD pada {{ttd}}.
   var ttdBlob = resolveTtdBlob(payload);
   if (ttdBlob) {
@@ -76,6 +79,40 @@ function generateDoc(payload) {
     mime: "application/pdf",
     size: saved.getSize(),
   };
+}
+
+/**
+ * Gandakan baris tabel penanda untuk tiap item `rows`.
+ * Baris template = baris tabel pertama yang memuat placeholder {{@field}}.
+ * Untuk tiap objek di `rows`, baris disalin & {{@key}} diganti nilainya;
+ * baris template asli dihapus setelah semua salinan tersisip.
+ */
+function fillRepeatingRows(bodyEl, rows) {
+  if (!rows || !rows.length) return;
+  var tables = bodyEl.getTables();
+  for (var t = 0; t < tables.length; t++) {
+    var table = tables[t];
+    var tplIndex = -1;
+    for (var r = 0; r < table.getNumRows(); r++) {
+      if (/\{\{@\w+\}\}/.test(table.getRow(r).getText())) {
+        tplIndex = r;
+        break;
+      }
+    }
+    if (tplIndex === -1) continue;
+
+    var tplRow = table.getRow(tplIndex);
+    for (var i = 0; i < rows.length; i++) {
+      var copy = tplRow.copy();
+      var data = rows[i] || {};
+      Object.keys(data).forEach(function (key) {
+        copy.replaceText("\\{\\{@" + key + "\\}\\}", String(data[key] == null ? "" : data[key]));
+      });
+      table.insertTableRow(tplIndex + i, copy);
+    }
+    table.removeRow(tplIndex + rows.length); // buang baris template
+    return; // cukup tabel pertama yang cocok
+  }
 }
 
 function resolveTtdBlob(payload) {
