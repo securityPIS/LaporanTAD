@@ -32,6 +32,16 @@ function doGet(e) {
   return json({ ok: true });
 }
 
+/**
+ * Jalankan SEKALI dari editor Apps Script, lalu klik "Review permissions" → "Allow".
+ * Ini memberi Web App (Execute as: Me) izin memakai Drive & Docs yang dibutuhkan
+ * docgen. Aman: hanya membaca folder root, tidak mengubah apa pun.
+ */
+function authorize() {
+  DriveApp.getRootFolder(); // memicu izin Drive; scope Docs/Sheets ikut dari kode lain
+  return "Izin diberikan. Web App siap dipakai.";
+}
+
 function getSecret() {
   return PropertiesService.getScriptProperties().getProperty("SHARED_SECRET");
 }
