@@ -9,6 +9,7 @@ import { Icon } from "@/components/shared/Icons";
 import { PhaseBadge } from "@/components/shared/TripStatus";
 import { fmtRange, fmtTgl } from "@/lib/date";
 import { fmtRupiah } from "@/lib/rupiah";
+import { splitIds } from "@/lib/files";
 import { Skeleton } from "@/components/shared/Skeleton";
 import { cn } from "@/lib/cn";
 import type { TripView } from "@/lib/trip-view";
@@ -67,7 +68,6 @@ export default function DinasDetailPage() {
             keterangan: c.keterangan,
             jumlah: String(c.jumlah),
             bukti_file_id: c.bukti_file_id,
-            bukti_nama: "",
           })),
         },
       },
@@ -113,6 +113,16 @@ export default function DinasDetailPage() {
               <KV k="Tujuan" v={t.tujuan} />
               <KV k="Rencana tanggal" v={fmtRange(t.tanggal_mulai, t.tanggal_selesai)} />
               {t.transportasi && <KV k="Transportasi" v={t.transportasi} />}
+              {splitIds(t.lampiran_file_id).length > 0 && (
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <span className="text-[12px] font-semibold text-faint">Lampiran</span>
+                  {splitIds(t.lampiran_file_id).map((fid, k) => (
+                    <a key={fid} href={`/api/files/${fid}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[11.5px] font-bold text-accent">
+                      <Icon name="doc" size={13} /> Berkas {k + 1}
+                    </a>
+                  ))}
+                </div>
+              )}
               <div className="mt-3 flex gap-2">
                 {t.spd_state === "terbit" ? (
                   <>
@@ -161,11 +171,11 @@ export default function DinasDetailPage() {
                           {c.keterangan && <div className="truncate text-[10.5px] text-faint">{c.keterangan}</div>}
                         </div>
                         <div className="flex items-center gap-1.5">
-                          {c.bukti_file_id && (
-                            <a href={`/api/files/${c.bukti_file_id}`} target="_blank" rel="noreferrer" aria-label="Bukti" className="text-lembur">
+                          {splitIds(c.bukti_file_id).map((fid, k) => (
+                            <a key={fid} href={`/api/files/${fid}`} target="_blank" rel="noreferrer" aria-label={`Bukti ${k + 1}`} className="text-lembur">
                               <Icon name="docCheck" size={13} />
                             </a>
-                          )}
+                          ))}
                           <span className="text-[12.5px] font-extrabold tabular-nums">{fmtRupiah(c.jumlah)}</span>
                         </div>
                       </div>

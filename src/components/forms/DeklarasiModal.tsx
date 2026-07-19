@@ -8,20 +8,20 @@ import { apiSend, apiUpload } from "@/lib/client";
 import { Sheet, AREA, BTN_BATAL, BTN_PRIMARY, INP, LBL } from "@/components/ui/Sheet";
 import { Icon } from "@/components/shared/Icons";
 import { fmtRupiah } from "@/lib/rupiah";
+import { joinIds, splitIds } from "@/lib/files";
 
 interface CostDraft {
   komponen: string;
   keterangan: string;
   jumlah: string; // string agar input kosong tak jadi 0
-  bukti_file_id: string;
-  bukti_nama: string;
+  bukti_file_id: string; // id berkas bukti (bisa >1, dipisah koma)
 }
 
 // Komponen biaya yang lazim — dipakai sebagai tombol cepat & baris awal.
 const KOMPONEN_UMUM = ["Transportasi", "Penginapan", "Uang harian", "Taksi/lokal", "Konsumsi", "Lain-lain"];
 
 function blankRow(komponen = ""): CostDraft {
-  return { komponen, keterangan: "", jumlah: "", bukti_file_id: "", bukti_nama: "" };
+  return { komponen, keterangan: "", jumlah: "", bukti_file_id: "" };
 }
 
 export function DeklarasiModal() {
@@ -173,11 +173,7 @@ export function DeklarasiModal() {
                   />
                 </div>
               </div>
-              <BuktiUpload
-                value={r.bukti_file_id}
-                name={r.bukti_nama}
-                onChange={(id, nama) => patchRow(i, { bukti_file_id: id, bukti_nama: nama })}
-              />
+              <BuktiUpload value={r.bukti_file_id} onChange={(ids) => patchRow(i, { bukti_file_id: ids })} />
             </div>
           ))}
         </div>
@@ -206,32 +202,36 @@ export function DeklarasiModal() {
   );
 }
 
-// Tombol unggah bukti ringkas per komponen (kompresi gambar client-side).
+// Tombol unggah bukti ringkas per komponen — bisa lebih dari satu berkas
+// (id disimpan dipisah koma), kompresi gambar client-side.
 function BuktiUpload({
   value,
-  name,
   onChange,
 }: {
   value: string;
-  name: string;
-  onChange: (fileId: string, name: string) => void;
+  onChange: (fileIds: string) => void;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [busy, setBusy] = useState(false);
-  const has = Boolean(value);
+  const ids = splitIds(value);
+  const has = ids.length > 0;
 
-  async function handle(file: File) {
+  async function handle(files: FileList) {
     setBusy(true);
     try {
-      let toUpload: File | Blob = file;
-      if (file.type.startsWith("image/")) {
-        toUpload = await imageCompression(file, { maxSizeMB: 1.5, maxWidthOrHeight: 2000, useWebWorker: true });
+      const uploaded: string[] = [];
+      for (const file of Array.from(files)) {
+        let toUpload: File | Blob = file;
+        if (file.type.startsWith("image/")) {
+          toUpload = await imageCompression(file, { maxSizeMB: 1.5, maxWidthOrHeight: 2000, useWebWorker: true });
+        }
+        const form = new FormData();
+        form.append("file", toUpload, file.name);
+        form.append("kind", "dinas");
+        const res = await apiUpload<{ file_id: string; name: string }>("/api/upload", form);
+        uploaded.push(res.file_id);
       }
-      const form = new FormData();
-      form.append("file", toUpload, file.name);
-      form.append("kind", "dinas");
-      const res = await apiUpload<{ file_id: string; name: string }>("/api/upload", form);
-      onChange(res.file_id, file.name);
+      onChange(joinIds([...ids, ...uploaded]));
     } catch {
       /* diamkan — pengguna bisa coba lagi */
     } finally {
@@ -240,28 +240,34 @@ function BuktiUpload({
   }
 
   return (
-    <>
+    <div className="mt-2 flex items-center gap-2">
       <input
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp,application/pdf"
+        multiple
         className="hidden"
         onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) handle(f);
+          if (e.target.files && e.target.files.length) handle(e.target.files);
+          e.target.value = "";
         }}
       />
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
         className={cn(
-          "mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed px-3 py-2 text-[11.5px] font-bold",
+          "flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-dashed px-3 py-2 text-[11.5px] font-bold",
           has ? "border-lembur text-lembur" : "border-border-strong text-faint",
         )}
       >
         <Icon name={has ? "check" : "upload"} size={14} />
-        {busy ? "Mengunggah…" : has ? name || "Bukti terlampir" : "Lampirkan bukti"}
+        {busy ? "Mengunggah…" : has ? `${ids.length} bukti · tambah` : "Lampirkan bukti"}
       </button>
-    </>
+      {has && (
+        <button type="button" onClick={() => onChange("")} aria-label="Hapus bukti" className="flex-none text-faint">
+          <Icon name="trash" size={14} />
+        </button>
+      )}
+    </div>
   );
 }

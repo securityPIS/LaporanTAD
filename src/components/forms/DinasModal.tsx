@@ -78,7 +78,7 @@ export function DinasModal() {
         <label className={LBL}>Keterangan (opsional)</label>
         <textarea className={AREA} value={keterangan} onChange={(e) => setKeterangan(e.target.value)} />
       </div>
-      <EvidenceUpload kind="dinas" label="Lampiran (opsional)" value={lampiran} onChange={(id) => setLampiran(id)} />
+      <EvidenceUpload kind="dinas" label="Lampiran (opsional)" value={lampiran} onChange={(id) => setLampiran(id)} multiple />
       {err && <div className="rounded-xl bg-libur-weak px-3 py-2 text-[12.5px] font-semibold text-libur">{err}</div>}
     </Sheet>
   );

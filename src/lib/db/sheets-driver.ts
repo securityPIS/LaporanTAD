@@ -11,6 +11,23 @@ import {
   type TableName,
 } from "./tables";
 
+function errMessage(e: unknown): string {
+  if (typeof e === "string") return e;
+  if (e && typeof e === "object" && "message" in e) return String((e as { message: unknown }).message);
+  return "";
+}
+
+/** Error Google saat tab/rentang tidak ada (mis. tabel baru belum di-setup). */
+function isMissingSheetError(e: unknown): boolean {
+  const m = errMessage(e);
+  return /Unable to parse range|not found|does not exist/i.test(m);
+}
+
+/** Error Google saat addSheet untuk tab yang sudah ada. */
+function isDuplicateSheetError(e: unknown): boolean {
+  return /already exists/i.test(errMessage(e));
+}
+
 /**
  * Driver Google Sheets (produksi): 1 tab = 1 tabel. Baris pertama header.
  * Pola append-dominan; update/delete mencari baris berdasarkan kunci primer
@@ -52,10 +69,18 @@ export class SheetsDriver implements DbDriver {
   }
 
   async all<T extends TableName>(table: T): Promise<TableMap[T][]> {
-    const res = await this.api.spreadsheets.values.get({
-      spreadsheetId: this.spreadsheetId,
-      range: `${table}!A2:ZZ`,
-    });
+    let res;
+    try {
+      res = await this.api.spreadsheets.values.get({
+        spreadsheetId: this.spreadsheetId,
+        range: `${table}!A2:ZZ`,
+      });
+    } catch (e) {
+      // Tab belum ada (mis. tabel baru sebelum `npm run setup:sheets`) →
+      // perlakukan sebagai kosong, jangan patahkan seluruh halaman.
+      if (isMissingSheetError(e)) return [];
+      throw e;
+    }
     const rows = res.data.values ?? [];
     return rows
       .filter((r) => r.some((c) => c !== "" && c != null))
@@ -63,14 +88,46 @@ export class SheetsDriver implements DbDriver {
   }
 
   async insert<T extends TableName>(table: T, row: TableMap[T]): Promise<TableMap[T]> {
+    const values = [this.rowToValues(table, row as unknown as Record<string, unknown>)];
+    try {
+      await this.appendRow(table, values);
+    } catch (e) {
+      // Tab belum dibuat → buat berikut header, lalu ulangi (self-heal migrasi).
+      if (!isMissingSheetError(e)) throw e;
+      await this.ensureSheet(table);
+      await this.appendRow(table, values);
+    }
+    return row;
+  }
+
+  private async appendRow(table: TableName, values: string[][]): Promise<void> {
     await this.api.spreadsheets.values.append({
       spreadsheetId: this.spreadsheetId,
       range: `${table}!A1`,
       valueInputOption: "RAW",
       insertDataOption: "INSERT_ROWS",
-      requestBody: { values: [this.rowToValues(table, row as unknown as Record<string, unknown>)] },
+      requestBody: { values },
     });
-    return row;
+  }
+
+  /** Buat tab (bila belum ada) beserta baris header sesuai TABLE_COLUMNS. */
+  private async ensureSheet(table: TableName): Promise<void> {
+    try {
+      await this.api.spreadsheets.batchUpdate({
+        spreadsheetId: this.spreadsheetId,
+        requestBody: { requests: [{ addSheet: { properties: { title: table } } }] },
+      });
+    } catch (e) {
+      // Sudah ada (dibuat paralel) → abaikan; error lain dilempar.
+      if (!isDuplicateSheetError(e)) throw e;
+    }
+    this.sheetIdCache.clear();
+    await this.api.spreadsheets.values.update({
+      spreadsheetId: this.spreadsheetId,
+      range: `${table}!A1`,
+      valueInputOption: "RAW",
+      requestBody: { values: [TABLE_COLUMNS[table]] },
+    });
   }
 
   private async rowIndexOf(table: TableName, id: string): Promise<number> {
@@ -136,6 +193,7 @@ export class SheetsDriver implements DbDriver {
 
   async replaceAll<T extends TableName>(table: T, rows: TableMap[T][]): Promise<void> {
     const header = TABLE_COLUMNS[table];
+    await this.ensureSheet(table); // buat tab bila belum ada (mis. tabel baru saat seed)
     await this.api.spreadsheets.values.clear({
       spreadsheetId: this.spreadsheetId,
       range: `${table}!A1:ZZ`,
