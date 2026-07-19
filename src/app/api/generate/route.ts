@@ -3,14 +3,9 @@ import { requireActive } from "@/lib/session";
 import { AppError } from "@/lib/errors";
 import { generateSchema } from "@/schemas";
 import { db } from "@/lib/db";
-import { isGasConfigured, isDriveConfigured } from "@/lib/env";
-import { gasGenerate } from "@/lib/gas";
-import { simplePdf } from "@/lib/pdf";
-import { storage } from "@/lib/storage";
-import { createDocument } from "@/repositories/documents";
+import { finalizeDocument } from "@/lib/docgen";
 import { fmtJamHHMM } from "@/lib/overtime-calc";
 import { fmtTgl } from "@/lib/date";
-import { todayWIB } from "@/lib/wib";
 import type { JenisDok } from "@/lib/db/tables";
 
 const JUDUL: Record<Exclude<JenisDok, "-">, string> = {
@@ -76,69 +71,17 @@ export const POST = route(async (req) => {
   placeholders.nama = owner.nama_lengkap;
   placeholders.nopek = owner.nopek;
 
-  // WAJIB TTD (FR-DOK-06): file tersimpan / unggahan baru / TTD tersimpan penanda tangan.
-  const ttdFileId = input.ttd_file_id || actor.ttd_file_id || "";
-  if (!ttdFileId && !input.ttd_data_url) {
-    throw new AppError("WAJIB_TTD", "Tanda tangan wajib disediakan sebelum membuat dokumen.", 422);
-  }
-  if (input.ttd_file_id && actor.role !== "admin" && input.ttd_file_id !== actor.ttd_file_id) {
-    throw new AppError("TIDAK_BERHAK", "TTD tersimpan hanya dapat dipakai pemiliknya.", 403);
-  }
-
-  const template = await db.findOne("doc_templates", (t) => t.jenis === input.jenis && t.active);
-  const [tahun, bulan] = todayWIB().split("-");
-  const outFolder = `dokumen/generated/${tahun}/${bulan}`;
-  const outName = `${input.jenis}_${owner.nopek}_${input.sumber_id}.pdf`;
-  const judul = `${JUDUL[input.jenis]} — ${owner.nama_lengkap}`;
-
-  let fileId: string;
-  let mime = "application/pdf";
-  let size = 0;
-
-  if (isGasConfigured() && template?.gdoc_id) {
-    const res = await gasGenerate({
-      jenis: input.jenis,
-      gdoc_id: template.gdoc_id,
-      placeholders,
-      ttd_file_id: ttdFileId || undefined,
-      ttd_data_url: input.ttd_data_url || undefined,
-      output_folder: outFolder,
-      output_name: outName,
-    });
-    fileId = res.file_id;
-    mime = res.mime;
-    size = res.size;
-  } else {
-    // Fallback dev/demo: PDF sederhana (tanpa embed gambar TTD).
-    const lines = [
-      ...Object.entries(placeholders).map(([k, v]) => `${labelize(k)}: ${v}`),
-      "",
-      `Ditandatangani secara digital oleh: ${actor.nama_lengkap} (${actor.email})`,
-      `TTD: ${ttdFileId ? "[gambar TTD tersimpan]" : "[gambar TTD diunggah/digambar]"}`,
-    ];
-    if (!isDriveConfigured()) lines.push("", "(Mode dev — TTD tidak disisipkan; produksi memakai GAS + Google Docs.)");
-    const pdf = simplePdf(judul, lines);
-    const meta = await storage().put(outFolder, outName, "application/pdf", pdf);
-    fileId = meta.id;
-    size = meta.size;
-  }
-
-  const doc = await createDocument(actor.email, {
-    judul,
-    kategori: "generated",
-    jenis_dok: input.jenis,
-    sumber_entitas: entitas,
-    sumber_id: input.sumber_id,
-    file_id: fileId,
-    mime,
-    ukuran: size,
-    uploaded_by: actor.email,
-    signed_by: actor.email,
+  const doc = await finalizeDocument({
+    actor,
+    jenis: input.jenis,
+    entitas,
+    sumberId: input.sumber_id,
+    judul: `${JUDUL[input.jenis]} — ${owner.nama_lengkap}`,
+    outName: `${input.jenis}_${owner.nopek}_${input.sumber_id}.pdf`,
+    placeholders,
+    ttd_file_id: input.ttd_file_id,
+    ttd_data_url: input.ttd_data_url,
   });
 
-  return ok({ document: doc, download: `/api/files/${fileId}` }, 201);
+  return ok({ document: doc, download: `/api/files/${doc.file_id}` }, 201);
 });
-
-function labelize(k: string): string {
-  return k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}

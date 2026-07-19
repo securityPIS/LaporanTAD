@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import { apiGet, apiSend } from "@/lib/client";
 import { Sheet, BTN_BATAL, INP, LBL } from "@/components/ui/Sheet";
 import { SignaturePad } from "./SignaturePad";
-import { fmtRange, fmtTgl } from "@/lib/date";
+import { fmtRange } from "@/lib/date";
 
 type Jenis = "spkl" | "spd" | "deklarasi_dinas" | "surat_cuti";
 const GEN_DEFS: { key: Jenis; code: string; name: string }[] = [
@@ -18,11 +18,19 @@ const GEN_DEFS: { key: Jenis; code: string; name: string }[] = [
 
 interface Opt { id: string; label: string }
 
+function pad(n: number): string { return String(n).padStart(2, "0"); }
+function isoOf(d: Date): string { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+
 export function GenerateDocModal() {
   const { me, modal, closeModal, showToast } = useApp();
   const [jenis, setJenis] = useState<Jenis>("spkl");
   const [sumberId, setSumberId] = useState("");
   const [opts, setOpts] = useState<Opt[]>([]);
+  // SPKL: rentang tanggal + daftar tanggal lembur (untuk hitung cakupan).
+  const now = new Date();
+  const [mulai, setMulai] = useState(isoOf(new Date(now.getFullYear(), now.getMonth(), 1)));
+  const [selesai, setSelesai] = useState(isoOf(now));
+  const [otDates, setOtDates] = useState<string[]>([]);
   const [useStored, setUseStored] = useState(Boolean(me?.ttd_file_id));
   const [ttdData, setTtdData] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -30,34 +38,51 @@ export function GenerateDocModal() {
 
   const hasStored = Boolean(me?.ttd_file_id);
   const ttdReady = (useStored && hasStored) || Boolean(ttdData);
+  const spklCount = jenis === "spkl" ? otDates.filter((t) => t >= mulai && t <= selesai).length : 0;
 
   useEffect(() => {
     const url = jenis === "spkl" ? "/api/overtime" : jenis === "surat_cuti" ? "/api/leaves" : "/api/trips";
     apiGet<{ items: Record<string, string>[] }>(url)
       .then((d) => {
+        if (jenis === "spkl") {
+          setOtDates(d.items.map((r) => r.tanggal));
+          return;
+        }
         const mapped: Opt[] = d.items.map((r) => {
-          if (jenis === "spkl") return { id: r.id, label: `${fmtTgl(r.tanggal)} · ${r.jam_mulai}–${r.jam_selesai}` };
           if (jenis === "surat_cuti") return { id: r.id, label: `${fmtRange(r.tanggal_mulai, r.tanggal_selesai)}` };
           return { id: r.id, label: `${r.tujuan} · ${fmtRange(r.tanggal_mulai, r.tanggal_selesai)}` };
         });
         setOpts(mapped);
         setSumberId(mapped[0]?.id ?? "");
       })
-      .catch(() => setOpts([]));
+      .catch(() => {
+        setOpts([]);
+        setOtDates([]);
+      });
   }, [jenis]);
 
   async function generate() {
     setErr(null);
-    if (!sumberId) return setErr("Pilih catatan sumber dokumen.");
     if (!ttdReady) return setErr("Tanda tangan wajib disediakan.");
+    const ttd = {
+      ttd_file_id: useStored && hasStored ? me?.ttd_file_id : "",
+      ttd_data_url: !useStored && ttdData ? ttdData : "",
+    };
     setBusy(true);
     try {
-      const res = await apiSend<{ download: string }>("/api/generate", "POST", {
-        jenis,
-        sumber_id: sumberId,
-        ttd_file_id: useStored && hasStored ? me?.ttd_file_id : "",
-        ttd_data_url: !useStored && ttdData ? ttdData : "",
-      });
+      let res: { download: string };
+      if (jenis === "spkl") {
+        if (mulai > selesai) { setBusy(false); return setErr("Tanggal mulai tidak boleh setelah tanggal selesai."); }
+        if (spklCount === 0) { setBusy(false); return setErr("Tidak ada catatan lembur pada rentang tanggal ini."); }
+        res = await apiSend<{ download: string }>("/api/generate/spkl", "POST", {
+          tanggal_mulai: mulai,
+          tanggal_selesai: selesai,
+          ...ttd,
+        });
+      } else {
+        if (!sumberId) { setBusy(false); return setErr("Pilih catatan sumber dokumen."); }
+        res = await apiSend<{ download: string }>("/api/generate", "POST", { jenis, sumber_id: sumberId, ...ttd });
+      }
       modal.onDone?.();
       closeModal();
       showToast("Dokumen tergenerate & bertanda tangan");
@@ -111,15 +136,30 @@ export function GenerateDocModal() {
         </div>
       </div>
 
-      <div>
-        <label className={LBL}>Pilih catatan sumber</label>
-        <select value={sumberId} onChange={(e) => setSumberId(e.target.value)} className={INP}>
-          {opts.length === 0 && <option value="">— tidak ada catatan —</option>}
-          {opts.map((o) => (
-            <option key={o.id} value={o.id}>{o.label}</option>
-          ))}
-        </select>
-      </div>
+      {jenis === "spkl" ? (
+        <div>
+          <label className={LBL}>Periode lembur</label>
+          <div className="grid grid-cols-2 gap-2">
+            <input type="date" value={mulai} max={selesai} onChange={(e) => setMulai(e.target.value)} className={INP} />
+            <input type="date" value={selesai} min={mulai} onChange={(e) => setSelesai(e.target.value)} className={INP} />
+          </div>
+          <p className="mt-2 text-[12px] font-semibold text-muted">
+            {spklCount > 0
+              ? `${spklCount} catatan lembur pada rentang ini akan disertakan.`
+              : "Tidak ada catatan lembur pada rentang ini."}
+          </p>
+        </div>
+      ) : (
+        <div>
+          <label className={LBL}>Pilih catatan sumber</label>
+          <select value={sumberId} onChange={(e) => setSumberId(e.target.value)} className={INP}>
+            {opts.length === 0 && <option value="">— tidak ada catatan —</option>}
+            {opts.map((o) => (
+              <option key={o.id} value={o.id}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div>
         <label className={LBL}>Tanda tangan <span className="text-libur">*</span></label>

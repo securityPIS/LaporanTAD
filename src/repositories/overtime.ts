@@ -19,6 +19,19 @@ export async function getOvertime(id: string): Promise<OvertimeRow | null> {
   return (await db.findOne("overtime", (o) => o.id === id)) ?? null;
 }
 
+/** Lembur milik user pada rentang tanggal [start, end] inklusif — urut ASC untuk dokumen. */
+export async function listOvertimeByUserRange(
+  userId: string,
+  start: string,
+  end: string,
+): Promise<OvertimeRow[]> {
+  const rows = await db.findMany(
+    "overtime",
+    (o) => o.user_id === userId && o.tanggal >= start && o.tanggal <= end,
+  );
+  return rows.sort((a, b) => (a.tanggal < b.tanggal ? -1 : a.tanggal > b.tanggal ? 1 : 0));
+}
+
 /** Peringatan lunak (tidak memblok): rekan Lembur Cuti tak tercatat cuti; tumpang tindih. */
 export interface SoftWarnings {
   warnings: string[];
