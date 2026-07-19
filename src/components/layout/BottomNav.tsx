@@ -9,11 +9,11 @@ const TABS: { key: string; label: string; icon: IconName }[] = [
   { key: "beranda", label: "Beranda", icon: "home" },
   { key: "lembur", label: "Lembur", icon: "clock" },
   { key: "cuti", label: "Cuti", icon: "calendar" },
-  { key: "kalender", label: "Kalender", icon: "calendarDots" },
+  { key: "dinas", label: "Dinas", icon: "plane" },
   { key: "lainnya", label: "Lainnya", icon: "dashboard" },
 ];
 
-const LAINNYA = ["/lainnya", "/dinas", "/pekerja", "/dokumen", "/profil"];
+const LAINNYA = ["/lainnya", "/kalender", "/pekerja", "/dokumen", "/profil"];
 
 export function BottomNav() {
   const pathname = usePathname();

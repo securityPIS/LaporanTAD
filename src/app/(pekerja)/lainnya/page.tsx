@@ -6,7 +6,7 @@ import { PHONE_SCROLL } from "@/components/layout/PhoneFrame";
 import { Icon, type IconName } from "@/components/shared/Icons";
 
 const MENU: { href: string; label: string; desc: string; icon: IconName; bg: string; fg: string }[] = [
-  { href: "/dinas", label: "Dinas", desc: "Catatan perjalanan dinas", icon: "globe", bg: "var(--dinas-weak)", fg: "var(--dinas)" },
+  { href: "/kalender", label: "Kalender", desc: "Jadwal lembur, cuti & libur", icon: "calendarDots", bg: "var(--dinas-weak)", fg: "var(--dinas)" },
   { href: "/pekerja", label: "Data Pekerja", desc: "Direktori rekan kerja", icon: "usersMulti", bg: "var(--lembur-weak)", fg: "var(--lembur)" },
   { href: "/dokumen", label: "Dokumen", desc: "Unduh & buat surat resmi", icon: "doc", bg: "var(--accent-weak)", fg: "var(--accent)" },
   { href: "/profil", label: "Profil Saya", desc: "Data diri & tanda tangan", icon: "users", bg: "var(--cuti-weak)", fg: "var(--cuti)" },
