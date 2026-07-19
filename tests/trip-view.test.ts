@@ -86,6 +86,16 @@ test("buildTripView: rakit fase, langkah, pil, total", () => {
   assert.equal(v.total_biaya, 2_400_000);
 });
 
+test("buildTripView: deklarasi_terisi hanya bila ada komponen biaya (tahan data lama)", () => {
+  // Tanggal realisasi terisi tapi tanpa biaya (mis. baris lama tergeser) → belum terisi.
+  const v = buildTripView(
+    trip({ status: "spd_terbit", tanggal_realisasi_mulai: "2026-07-10T09:00:00+07:00" }),
+    [],
+    "2026-07-20",
+  );
+  assert.equal(v.deklarasi_terisi, false);
+});
+
 test("buildTripView: draft belum terisi deklarasi", () => {
   const v = buildTripView(trip({ status: "draft" }), [], "2026-07-20");
   assert.equal(v.phase, "draft");

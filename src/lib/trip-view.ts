@@ -73,7 +73,9 @@ export function buildTripView(trip: TripRow, costs: TripCostRow[], today: string
     langkah: meta.langkah,
     spd_state: spdState(phase),
     deklarasi_state: deklarasiState(phase),
-    deklarasi_terisi: Boolean(trip.tanggal_realisasi_mulai) || costs.length > 0,
+    // Deklarasi selalu punya ≥1 komponen biaya (skema), jadi keberadaan biaya
+    // adalah penanda paling andal "sudah diisi" — tak terpengaruh data lama.
+    deklarasi_terisi: costs.length > 0,
     total_biaya: totalBiaya(costs),
   };
 }

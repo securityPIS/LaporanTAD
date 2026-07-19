@@ -11,16 +11,29 @@ import {
   type TableName,
 } from "./tables";
 
+/** Rangkai semua teks error yang mungkin dari googleapis (pesan bisa bersarang). */
 function errMessage(e: unknown): string {
   if (typeof e === "string") return e;
-  if (e && typeof e === "object" && "message" in e) return String((e as { message: unknown }).message);
-  return "";
+  if (!e || typeof e !== "object") return "";
+  const o = e as Record<string, unknown>;
+  const parts: string[] = [];
+  if (typeof o.message === "string") parts.push(o.message);
+  const resp = o.response as { data?: { error?: { message?: unknown } } } | undefined;
+  if (typeof resp?.data?.error?.message === "string") parts.push(resp.data.error.message);
+  if (Array.isArray(o.errors)) {
+    for (const it of o.errors) {
+      const m = (it as { message?: unknown })?.message;
+      if (typeof m === "string") parts.push(m);
+    }
+  }
+  return parts.join(" | ");
 }
 
 /** Error Google saat tab/rentang tidak ada (mis. tabel baru belum di-setup). */
 function isMissingSheetError(e: unknown): boolean {
   const m = errMessage(e);
-  return /Unable to parse range|not found|does not exist/i.test(m);
+  // Tanda khas tab tak ada: rentang tak dapat diurai / nama tab tak ditemukan.
+  return /unable to parse range|not found|does not exist/i.test(m);
 }
 
 /** Error Google saat addSheet untuk tab yang sudah ada. */
