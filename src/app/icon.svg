@@ -20,8 +20,8 @@
       <stop offset="0" stop-color="#1a2f7a" stop-opacity="0.45"/>
       <stop offset="1" stop-color="#1a2f7a" stop-opacity="0"/>
     </radialGradient>
-    <filter id="markShadow" x="80" y="120" width="380" height="320" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#12246b" flood-opacity="0.35"/>
+    <filter id="markShadow" x="100" y="100" width="360" height="360" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="9" stdDeviation="12" flood-color="#0c1a52" flood-opacity="0.40"/>
     </filter>
   </defs>
 
@@ -32,14 +32,10 @@
   <!-- Cincin sorotan tipis (rim light) untuk kesan timbul -->
   <rect x="30" y="30" width="452" height="452" rx="126" fill="none" stroke="#ffffff" stroke-opacity="0.20" stroke-width="3"/>
 
-  <!-- Tanda centang tebal + sapuan (report disetujui / selesai) -->
-  <g filter="url(#markShadow)">
-    <path d="M156 268 L228 344 L392 168"
-      fill="none" stroke="url(#markGrad)" stroke-width="50"
-      stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Logo Pertamina: tiga anak panah (biru, hijau, merah) menanjak ke kanan -->
+  <g filter="url(#markShadow)" stroke="#ffffff" stroke-opacity="0.28" stroke-width="4" stroke-linejoin="round">
+    <path d="M302 330 L152 284 L196 330 L152 376 Z" fill="#00A0E3"/>
+    <path d="M342 256 L192 210 L236 256 L192 302 Z" fill="#1AA64C"/>
+    <path d="M382 182 L232 136 L276 182 L232 228 Z" fill="#ED1C24"/>
   </g>
-  <!-- Percikan aksen modern di ujung sapuan -->
-  <circle cx="392" cy="168" r="21" fill="#ffffff"/>
-  <circle cx="392" cy="168" r="21" fill="url(#topGlow)"/>
-  <circle cx="345" cy="140" r="9" fill="#ffffff" fill-opacity="0.85"/>
 </svg>

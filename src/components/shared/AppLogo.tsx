@@ -43,8 +43,8 @@ export function AppLogo({ size = 34 }: { size?: number }) {
           <stop offset="0" stopColor="#1a2f7a" stopOpacity="0.45" />
           <stop offset="1" stopColor="#1a2f7a" stopOpacity="0" />
         </radialGradient>
-        <filter id="alMarkShadow" x="80" y="120" width="380" height="320" filterUnits="userSpaceOnUse">
-          <feDropShadow dx="0" dy="10" stdDeviation="14" floodColor="#12246b" floodOpacity="0.35" />
+        <filter id="alMarkShadow" x="100" y="100" width="360" height="360" filterUnits="userSpaceOnUse">
+          <feDropShadow dx="0" dy="9" stdDeviation="12" floodColor="#0c1a52" floodOpacity="0.40" />
         </filter>
       </defs>
 
@@ -63,19 +63,12 @@ export function AppLogo({ size = 34 }: { size?: number }) {
         strokeWidth="3"
       />
 
-      <g filter="url(#alMarkShadow)">
-        <path
-          d="M156 268 L228 344 L392 168"
-          fill="none"
-          stroke="url(#alMarkGrad)"
-          strokeWidth="50"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+      {/* Logo Pertamina: tiga anak panah (biru, hijau, merah) menanjak ke kanan */}
+      <g filter="url(#alMarkShadow)" stroke="#ffffff" strokeOpacity="0.28" strokeWidth="4" strokeLinejoin="round">
+        <path d="M302 330 L152 284 L196 330 L152 376 Z" fill="#00A0E3" />
+        <path d="M342 256 L192 210 L236 256 L192 302 Z" fill="#1AA64C" />
+        <path d="M382 182 L232 136 L276 182 L232 228 Z" fill="#ED1C24" />
       </g>
-      <circle cx="392" cy="168" r="21" fill="#ffffff" />
-      <circle cx="392" cy="168" r="21" fill="url(#alTopGlow)" />
-      <circle cx="345" cy="140" r="9" fill="#ffffff" fillOpacity="0.85" />
     </svg>
   );
 }
