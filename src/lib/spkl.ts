@@ -5,7 +5,8 @@
 import { fmtRange, fmtTgl } from "./date";
 import { fmtJamHHMM } from "./overtime-calc";
 import { jenisMeta } from "./overtime-view";
-import type { OvertimeRow, UserRow } from "./db/tables";
+import { ownerPlaceholders, type OwnerLike } from "./doc-fields";
+import type { OvertimeRow } from "./db/tables";
 
 /** Satu baris lembur pada tabel SPKL — key polos, dipetakan ke {{@key}} oleh GAS. */
 export interface SpklRow {
@@ -37,23 +38,18 @@ export function totalJam(rows: OvertimeRow[]): number {
 
 /** Placeholder header tunggal ({{nama}}, {{periode}}, …) untuk template SPKL. */
 export function buildSpklHeader(
-  owner: Pick<UserRow, "nama_lengkap" | "nopek" | "divisi" | "bagian" | "lokasi_kerja">,
+  owner: OwnerLike,
   start: string,
   end: string,
   rows: OvertimeRow[],
   tanggalCetak: string,
 ): Record<string, string> {
   return {
-    nama: owner.nama_lengkap,
-    nopek: owner.nopek,
-    divisi: owner.divisi,
-    bagian: owner.bagian,
-    lokasi_kerja: owner.lokasi_kerja,
+    ...ownerPlaceholders(owner, tanggalCetak),
     periode: fmtRange(start, end),
     tanggal_mulai: fmtTgl(start),
     tanggal_selesai: fmtTgl(end),
     total_catatan: String(rows.length),
     total_jam: `${fmtJamHHMM(totalJam(rows))} jam`,
-    tanggal_cetak: fmtTgl(tanggalCetak),
   };
 }
