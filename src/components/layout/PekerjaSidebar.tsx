@@ -10,7 +10,7 @@ const NAV: { href: string; label: string; icon: IconName }[] = [
   { href: "/beranda", label: "Beranda", icon: "home" },
   { href: "/lembur", label: "Lembur", icon: "clock" },
   { href: "/cuti", label: "Cuti", icon: "calendar" },
-  { href: "/dinas", label: "Dinas", icon: "globe" },
+  { href: "/dinas", label: "Dinas", icon: "plane" },
   { href: "/kalender", label: "Kalender", icon: "calendarDots" },
   { href: "/dokumen", label: "Dokumen", icon: "doc" },
   { href: "/pekerja", label: "Direktori", icon: "usersMulti" },

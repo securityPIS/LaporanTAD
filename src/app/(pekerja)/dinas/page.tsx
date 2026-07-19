@@ -28,7 +28,7 @@ export default function DinasPage() {
         <div className="px-[18px] pb-24 pt-[10px]">
           {loading && <Skeleton rows={2} />}
           {!loading && items.length === 0 && (
-            <EmptyState icon="globe" title="Belum ada dinas" hint="Ketuk + untuk merencanakan perjalanan dinas & membuat SPD." />
+            <EmptyState icon="plane" title="Belum ada dinas" hint="Ketuk + untuk merencanakan perjalanan dinas & membuat SPD." />
           )}
           <div className="flex flex-col gap-[10px]">
             {items.map((t) => (
@@ -40,7 +40,7 @@ export default function DinasPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-dinas-weak text-dinas">
-                      <Icon name="globe" size={16} />
+                      <Icon name="plane" size={16} />
                     </span>
                     <div>
                       <div className="text-[14px] font-extrabold">{t.tujuan}</div>

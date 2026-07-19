@@ -18,7 +18,7 @@ const TONE_TEXT: Record<Tone, string> = {
 
 const PHASE_ICON: Record<TripPhase, IconName> = {
   draft: "clock",
-  spd_terbit: "globe",
+  spd_terbit: "plane",
   menunggu_deklarasi: "clock",
   selesai: "check",
 };

@@ -14,7 +14,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
       { href: "/admin", label: "Dashboard", icon: "dashboard" },
       { href: "/admin/rekap", label: "Rekap Lembur", icon: "barChart" },
       { href: "/admin/cuti", label: "Rekap Cuti", icon: "calendar" },
-      { href: "/admin/dinas", label: "Rekap Dinas", icon: "globe" },
+      { href: "/admin/dinas", label: "Rekap Dinas", icon: "plane" },
     ],
   },
   {
