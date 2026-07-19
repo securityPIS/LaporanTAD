@@ -4,8 +4,10 @@ import { AppError } from "@/lib/errors";
 import { generateSchema } from "@/schemas";
 import { db } from "@/lib/db";
 import { finalizeDocument } from "@/lib/docgen";
+import { ownerPlaceholders } from "@/lib/doc-fields";
 import { fmtJamHHMM } from "@/lib/overtime-calc";
-import { fmtTgl } from "@/lib/date";
+import { fmtRange, fmtTgl } from "@/lib/date";
+import { todayWIB } from "@/lib/wib";
 import type { JenisDok } from "@/lib/db/tables";
 
 const JUDUL: Record<Exclude<JenisDok, "-">, string> = {
@@ -46,8 +48,10 @@ export const POST = route(async (req) => {
       tujuan: t.tujuan,
       tanggal_mulai: fmtTgl(t.tanggal_mulai),
       tanggal_selesai: fmtTgl(t.tanggal_selesai),
+      durasi: fmtRange(t.tanggal_mulai, t.tanggal_selesai),
       keperluan: t.keperluan,
       transportasi: t.transportasi,
+      keterangan: t.keterangan,
     });
   } else {
     const l = await db.findOne("leaves", (x) => x.id === input.sumber_id);
@@ -59,7 +63,8 @@ export const POST = route(async (req) => {
       jenis_cuti: type?.nama ?? "",
       tanggal_mulai: fmtTgl(l.tanggal_mulai),
       tanggal_selesai: fmtTgl(l.tanggal_selesai),
-      jumlah_hari: String(l.jumlah_hari),
+      durasi: fmtRange(l.tanggal_mulai, l.tanggal_selesai),
+      jumlah_hari: `${l.jumlah_hari} hari`,
       keterangan: l.keterangan,
     });
   }
@@ -68,8 +73,7 @@ export const POST = route(async (req) => {
     throw new AppError("TIDAK_BERHAK", "Hanya pemilik catatan atau admin yang dapat generate.", 403);
   }
   const owner = actor.id === ownerId ? actor : (await db.findOne("users", (u) => u.id === ownerId))!;
-  placeholders.nama = owner.nama_lengkap;
-  placeholders.nopek = owner.nopek;
+  Object.assign(placeholders, ownerPlaceholders(owner, todayWIB()));
 
   const doc = await finalizeDocument({
     actor,

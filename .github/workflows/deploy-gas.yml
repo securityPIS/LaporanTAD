@@ -1,0 +1,104 @@
+name: Deploy GAS
+
+# Deploy Google Apps Script (src/gas) ke proyek Apps Script via clasp.
+# Berjalan otomatis saat kode GAS berubah di main, atau manual (workflow_dispatch).
+#
+# Secret yang WAJIB diset di Settings → Secrets and variables → Actions:
+#   CLASPRC_JSON       isi berkas ~/.clasprc.json dari mesin yang sudah `clasp login`
+#   GAS_SCRIPT_ID      scriptId proyek Apps Script LaporanTAD
+# Secret OPSIONAL (disarankan agar URL Web App tetap):
+#   GAS_DEPLOYMENT_ID  ID deployment Web App yang sudah ada; bila kosong, dibuat baru
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/gas/**"
+      - ".github/workflows/deploy-gas.yml"
+  workflow_dispatch:
+
+# Cegah dua deploy berjalan bersamaan.
+concurrency:
+  group: deploy-gas
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Bila secret belum diset (mis. baru merge ke main), lewati deploy dengan
+      # sukses — bukan gagal — agar tidak memerahkan commit di main.
+      - name: Cek kesiapan secret
+        id: check
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+          GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
+        run: |
+          if [ -z "$CLASPRC_JSON" ] || [ -z "$GAS_SCRIPT_ID" ]; then
+            echo "Secret CLASPRC_JSON / GAS_SCRIPT_ID belum diset — deploy dilewati."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Pasang clasp
+        if: steps.check.outputs.ready == 'true'
+        run: npm install -g @google/clasp@3.3.0
+
+      - name: Tulis kredensial clasp
+        if: steps.check.outputs.ready == 'true'
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: printf '%s' "$CLASPRC_JSON" > "$HOME/.clasprc.json"
+
+      - name: Tulis .clasp.json
+        if: steps.check.outputs.ready == 'true'
+        env:
+          GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
+        run: |
+          printf '{ "scriptId": "%s", "rootDir": "src/gas" }\n' "$GAS_SCRIPT_ID" > .clasp.json
+
+      - name: Pastikan manifest appsscript.json ada
+        if: steps.check.outputs.ready == 'true'
+        env:
+          GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
+        run: |
+          # clasp push butuh appsscript.json. Bila belum diversikan di repo,
+          # ambil manifest dari proyek remote (ke folder temp) tanpa menimpa kode baru.
+          if [ ! -f src/gas/appsscript.json ]; then
+            echo "Manifest belum ada di repo — mengambil dari proyek remote…"
+            mkdir -p .gaspull
+            printf '{ "scriptId": "%s", "rootDir": ".gaspull" }\n' "$GAS_SCRIPT_ID" > .clasp.json
+            clasp pull
+            cp .gaspull/appsscript.json src/gas/appsscript.json
+            # kembalikan .clasp.json ke rootDir kode kita
+            printf '{ "scriptId": "%s", "rootDir": "src/gas" }\n' "$GAS_SCRIPT_ID" > .clasp.json
+            rm -rf .gaspull
+          fi
+
+      - name: Push kode ke Apps Script
+        if: steps.check.outputs.ready == 'true'
+        run: clasp push --force
+
+      - name: Deploy Web App
+        if: steps.check.outputs.ready == 'true'
+        env:
+          GAS_DEPLOYMENT_ID: ${{ secrets.GAS_DEPLOYMENT_ID }}
+          SHA: ${{ github.sha }}
+        run: |
+          DESC="CI ${SHA:0:7}"
+          if [ -n "$GAS_DEPLOYMENT_ID" ]; then
+            # Perbarui deployment yang ada → URL Web App tidak berubah.
+            clasp deploy -i "$GAS_DEPLOYMENT_ID" -d "$DESC"
+          else
+            # Buat deployment baru (URL baru — salin dari log & set GAS_WEBAPP_URL di Vercel).
+            echo "GAS_DEPLOYMENT_ID kosong — membuat deployment baru; catat ID/URL dari output."
+            clasp deploy -d "$DESC"
+            clasp deployments
+          fi

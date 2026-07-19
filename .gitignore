@@ -29,6 +29,7 @@ yarn-error.log*
 # credentials / service account keys (JANGAN commit)
 /key/
 gas/.clasp.json
+/.clasp.json
 .clasprc.json
 
 # typescript
