@@ -10,6 +10,7 @@ export const PRIMARY_KEY: Record<TableName, string> = {
   leave_types: "id",
   leave_balances: "id",
   trips: "id",
+  trip_costs: "id",
   holidays: "id",
   documents: "id",
   doc_templates: "id",

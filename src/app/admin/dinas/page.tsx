@@ -5,10 +5,12 @@ import { useData } from "@/lib/client";
 import { AdminHeader, Card, SELECT, TD, TH } from "@/components/admin/ui";
 import { Icon } from "@/components/shared/Icons";
 import { fmtRange } from "@/lib/date";
+import { fmtRupiah } from "@/lib/rupiah";
 
 interface Row {
   id: string; nama: string; nopek: string; lokasi: string; tujuan: string;
   tanggal_mulai: string; tanggal_selesai: string; keperluan: string; transportasi: string;
+  phase_label: string; total_biaya: number;
 }
 
 export default function AdminDinasPage() {
@@ -43,7 +45,8 @@ export default function AdminDinasPage() {
                 <th className={TH}>Tujuan</th>
                 <th className={TH}>Rentang</th>
                 <th className={TH}>Keperluan</th>
-                <th className={TH}>Transportasi</th>
+                <th className={TH}>Status</th>
+                <th className={TH}>Total Biaya</th>
               </tr>
             </thead>
             <tbody>
@@ -53,7 +56,8 @@ export default function AdminDinasPage() {
                   <td className={TD}>{r.tujuan}</td>
                   <td className={TD}>{fmtRange(r.tanggal_mulai, r.tanggal_selesai)}</td>
                   <td className={TD}>{r.keperluan}</td>
-                  <td className={TD}>{r.transportasi || "—"}</td>
+                  <td className={TD}>{r.phase_label}</td>
+                  <td className={TD}>{r.total_biaya > 0 ? fmtRupiah(r.total_biaya) : "—"}</td>
                 </tr>
               ))}
             </tbody>

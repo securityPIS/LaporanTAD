@@ -6,6 +6,8 @@ import { db } from "@/lib/db";
 import { finalizeDocument } from "@/lib/docgen";
 import { ownerPlaceholders } from "@/lib/doc-fields";
 import { fmtJamHHMM } from "@/lib/overtime-calc";
+import { buildDeklarasiHeader, buildDeklarasiRows } from "@/lib/deklarasi";
+import { listCostsByTrip, markTripSelesai, markTripSpdIssued } from "@/repositories/trips";
 import { fmtRange, fmtTgl } from "@/lib/date";
 import { todayWIB } from "@/lib/wib";
 import type { JenisDok } from "@/lib/db/tables";
@@ -26,6 +28,9 @@ export const POST = route(async (req) => {
   let ownerId = "";
   let entitas = "";
   const placeholders: Record<string, string> = {};
+  let rows: Array<Record<string, string>> | undefined;
+  // Hook status dinas dijalankan setelah dokumen berhasil dibuat.
+  let afterGenerate: (() => Promise<void>) | undefined;
 
   if (input.jenis === "spkl") {
     const o = await db.findOne("overtime", (x) => x.id === input.sumber_id);
@@ -39,7 +44,7 @@ export const POST = route(async (req) => {
       keterangan: o.keterangan,
       jenis: o.jenis,
     });
-  } else if (input.jenis === "spd" || input.jenis === "deklarasi_dinas") {
+  } else if (input.jenis === "spd") {
     const t = await db.findOne("trips", (x) => x.id === input.sumber_id);
     if (!t) throw new AppError("TIDAK_DITEMUKAN", "Catatan dinas tidak ditemukan", 404);
     ownerId = t.user_id;
@@ -53,6 +58,23 @@ export const POST = route(async (req) => {
       transportasi: t.transportasi,
       keterangan: t.keterangan,
     });
+    afterGenerate = () => markTripSpdIssued(t.id);
+  } else if (input.jenis === "deklarasi_dinas") {
+    const t = await db.findOne("trips", (x) => x.id === input.sumber_id);
+    if (!t) throw new AppError("TIDAK_DITEMUKAN", "Catatan dinas tidak ditemukan", 404);
+    if (t.status === "draft") {
+      throw new AppError("VALIDASI_GAGAL", "Terbitkan SPD dulu sebelum membuat Deklarasi.", 422);
+    }
+    const costs = await listCostsByTrip(t.id);
+    if (!t.tanggal_realisasi_mulai || costs.length === 0) {
+      throw new AppError("VALIDASI_GAGAL", "Lengkapi realisasi & rincian biaya Deklarasi dulu.", 422);
+    }
+    ownerId = t.user_id;
+    entitas = "trips";
+    const owner = actor.id === t.user_id ? actor : (await db.findOne("users", (u) => u.id === t.user_id))!;
+    Object.assign(placeholders, buildDeklarasiHeader(owner, t, costs, todayWIB()));
+    rows = buildDeklarasiRows(costs);
+    afterGenerate = () => markTripSelesai(t.id);
   } else {
     const l = await db.findOne("leaves", (x) => x.id === input.sumber_id);
     if (!l) throw new AppError("TIDAK_DITEMUKAN", "Catatan cuti tidak ditemukan", 404);
@@ -83,9 +105,12 @@ export const POST = route(async (req) => {
     judul: `${JUDUL[input.jenis]} — ${owner.nama_lengkap}`,
     outName: `${input.jenis}_${owner.nopek}_${input.sumber_id}.pdf`,
     placeholders,
+    rows,
     ttd_file_id: input.ttd_file_id,
     ttd_data_url: input.ttd_data_url,
   });
+
+  await afterGenerate?.();
 
   return ok({ document: doc, download: `/api/files/${doc.file_id}` }, 201);
 });

@@ -23,8 +23,13 @@ function isoOf(d: Date): string { return `${d.getFullYear()}-${pad(d.getMonth() 
 
 export function GenerateDocModal() {
   const { me, modal, closeModal, showToast } = useApp();
-  const [jenis, setJenis] = useState<Jenis>("spkl");
-  const [sumberId, setSumberId] = useState("");
+  const p = modal.payload ?? {};
+  // Mode terkunci: dipanggil dari halaman detail dinas dengan jenis & sumber
+  // sudah ditetapkan (SPD / Deklarasi untuk satu perjalanan tertentu).
+  const lockJenis = Boolean(p.lockJenis);
+  const lockedLabel = String(p.label ?? "");
+  const [jenis, setJenis] = useState<Jenis>((p.jenis as Jenis) || "spkl");
+  const [sumberId, setSumberId] = useState((p.sumberId as string) || "");
   const [opts, setOpts] = useState<Opt[]>([]);
   // SPKL: rentang tanggal + daftar tanggal lembur (untuk hitung cakupan).
   const now = new Date();
@@ -41,6 +46,7 @@ export function GenerateDocModal() {
   const spklCount = jenis === "spkl" ? otDates.filter((t) => t >= mulai && t <= selesai).length : 0;
 
   useEffect(() => {
+    if (lockJenis) return; // sumber sudah ditetapkan pemanggil
     const url = jenis === "spkl" ? "/api/overtime" : jenis === "surat_cuti" ? "/api/leaves" : "/api/trips";
     apiGet<{ items: Record<string, string>[] }>(url)
       .then((d) => {
@@ -59,7 +65,7 @@ export function GenerateDocModal() {
         setOpts([]);
         setOtDates([]);
       });
-  }, [jenis]);
+  }, [jenis, lockJenis]);
 
   async function generate() {
     setErr(null);
@@ -114,51 +120,62 @@ export function GenerateDocModal() {
         </>
       }
     >
-      <div>
-        <label className={LBL}>Jenis dokumen</label>
-        <div className="grid grid-cols-2 gap-2">
-          {GEN_DEFS.map((g) => {
-            const on = jenis === g.key;
-            return (
-              <button
-                key={g.key}
-                onClick={() => setJenis(g.key)}
-                className={cn(
-                  "flex flex-col items-start rounded-xl border-[1.5px] px-[14px] py-3 text-left",
-                  on ? "border-accent bg-accent-weak text-accent-ink" : "border-border bg-surface text-text",
-                )}
-              >
-                <span className="text-[13px] font-extrabold">{g.code}</span>
-                <span className="mt-[2px] text-[10.5px] opacity-80">{g.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {jenis === "spkl" ? (
-        <div>
-          <label className={LBL}>Periode lembur</label>
-          <div className="grid grid-cols-2 gap-2">
-            <input type="date" value={mulai} max={selesai} onChange={(e) => setMulai(e.target.value)} className={INP} />
-            <input type="date" value={selesai} min={mulai} onChange={(e) => setSelesai(e.target.value)} className={INP} />
+      {lockJenis ? (
+        <div className="rounded-2xl border border-border bg-surface-2 px-[14px] py-3">
+          <div className="text-[10.5px] font-bold uppercase tracking-wide text-faint">
+            {GEN_DEFS.find((g) => g.key === jenis)?.code ?? "Dokumen"}
           </div>
-          <p className="mt-2 text-[12px] font-semibold text-muted">
-            {spklCount > 0
-              ? `${spklCount} catatan lembur pada rentang ini akan disertakan.`
-              : "Tidak ada catatan lembur pada rentang ini."}
-          </p>
+          <div className="mt-[3px] text-[13.5px] font-extrabold">{lockedLabel || "Catatan terpilih"}</div>
         </div>
       ) : (
-        <div>
-          <label className={LBL}>Pilih catatan sumber</label>
-          <select value={sumberId} onChange={(e) => setSumberId(e.target.value)} className={INP}>
-            {opts.length === 0 && <option value="">— tidak ada catatan —</option>}
-            {opts.map((o) => (
-              <option key={o.id} value={o.id}>{o.label}</option>
-            ))}
-          </select>
-        </div>
+        <>
+          <div>
+            <label className={LBL}>Jenis dokumen</label>
+            <div className="grid grid-cols-2 gap-2">
+              {GEN_DEFS.map((g) => {
+                const on = jenis === g.key;
+                return (
+                  <button
+                    key={g.key}
+                    onClick={() => setJenis(g.key)}
+                    className={cn(
+                      "flex flex-col items-start rounded-xl border-[1.5px] px-[14px] py-3 text-left",
+                      on ? "border-accent bg-accent-weak text-accent-ink" : "border-border bg-surface text-text",
+                    )}
+                  >
+                    <span className="text-[13px] font-extrabold">{g.code}</span>
+                    <span className="mt-[2px] text-[10.5px] opacity-80">{g.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {jenis === "spkl" ? (
+            <div>
+              <label className={LBL}>Periode lembur</label>
+              <div className="grid grid-cols-2 gap-2">
+                <input type="date" value={mulai} max={selesai} onChange={(e) => setMulai(e.target.value)} className={INP} />
+                <input type="date" value={selesai} min={mulai} onChange={(e) => setSelesai(e.target.value)} className={INP} />
+              </div>
+              <p className="mt-2 text-[12px] font-semibold text-muted">
+                {spklCount > 0
+                  ? `${spklCount} catatan lembur pada rentang ini akan disertakan.`
+                  : "Tidak ada catatan lembur pada rentang ini."}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <label className={LBL}>Pilih catatan sumber</label>
+              <select value={sumberId} onChange={(e) => setSumberId(e.target.value)} className={INP}>
+                {opts.length === 0 && <option value="">— tidak ada catatan —</option>}
+                {opts.map((o) => (
+                  <option key={o.id} value={o.id}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </>
       )}
 
       <div>

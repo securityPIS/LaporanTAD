@@ -12,6 +12,7 @@ import type {
   OvertimeRow,
   SettingRow,
   TableMap,
+  TripCostRow,
   TripRow,
   UserRow,
 } from "./db/tables";
@@ -185,8 +186,41 @@ const leaves: LeaveRow[] = [
   { id: "lv_4", user_id: "usr_andi", leave_type_id: "lt_tahunan", tanggal_mulai: "2026-06-21", tanggal_selesai: "2026-06-21", jumlah_hari: 1, keterangan: "Cuti tahunan", lampiran_file_id: "", status: "tercatat", created_at: T, updated_at: T },
 ];
 
+// Tiga contoh dinas menempuh tiap fase siklus hidup: Bandung selesai (SPD +
+// Deklarasi terbit, ada rincian biaya), Surabaya sedang berjalan (SPD terbit,
+// menunggu deklarasi), Semarang baru direncanakan (perlu SPD).
 const trips: TripRow[] = [
-  { id: "trp_1", user_id: "usr_rizky", tujuan: "Surabaya", tanggal_mulai: "2026-07-15", tanggal_selesai: "2026-07-17", keperluan: "Koordinasi vendor gudang", transportasi: "Pesawat", keterangan: "", lampiran_file_id: "", status: "tercatat", created_at: T, updated_at: T },
+  {
+    id: "trp_1", user_id: "usr_rizky", tujuan: "Surabaya",
+    tanggal_mulai: "2026-07-18", tanggal_selesai: "2026-07-20",
+    keperluan: "Koordinasi vendor infrastruktur", transportasi: "Pesawat",
+    keterangan: "", lampiran_file_id: "", status: "spd_terbit",
+    tanggal_realisasi_mulai: "", tanggal_realisasi_selesai: "", deklarasi_catatan: "",
+    created_at: "2026-07-14T09:00:00+07:00", updated_at: "2026-07-16T09:00:00+07:00",
+  },
+  {
+    id: "trp_2", user_id: "usr_rizky", tujuan: "Bandung",
+    tanggal_mulai: "2026-07-05", tanggal_selesai: "2026-07-06",
+    keperluan: "Audit mutu triwulan", transportasi: "Kereta",
+    keterangan: "", lampiran_file_id: "", status: "selesai",
+    tanggal_realisasi_mulai: "2026-07-05", tanggal_realisasi_selesai: "2026-07-06",
+    deklarasi_catatan: "Sesuai rencana.",
+    created_at: "2026-07-01T09:00:00+07:00", updated_at: "2026-07-07T09:00:00+07:00",
+  },
+  {
+    id: "trp_3", user_id: "usr_rizky", tujuan: "Semarang",
+    tanggal_mulai: "2026-07-28", tanggal_selesai: "2026-07-29",
+    keperluan: "Pelatihan sistem baru", transportasi: "",
+    keterangan: "", lampiran_file_id: "", status: "draft",
+    tanggal_realisasi_mulai: "", tanggal_realisasi_selesai: "", deklarasi_catatan: "",
+    created_at: "2026-07-17T09:00:00+07:00", updated_at: "2026-07-17T09:00:00+07:00",
+  },
+];
+
+const trip_costs: TripCostRow[] = [
+  { id: "tc_1", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Transportasi", keterangan: "Tiket kereta PP", jumlah: 1200000, bukti_file_id: "", urutan: 1, created_at: "2026-07-07T09:00:00+07:00" },
+  { id: "tc_2", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Penginapan", keterangan: "1 malam", jumlah: 900000, bukti_file_id: "", urutan: 2, created_at: "2026-07-07T09:00:00+07:00" },
+  { id: "tc_3", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Uang harian", keterangan: "Lumsum 2 hari", jumlah: 300000, bukti_file_id: "", urutan: 3, created_at: "2026-07-07T09:00:00+07:00" },
 ];
 
 const leave_balances: LeaveBalanceRow[] = users
@@ -205,6 +239,10 @@ const documents: DocumentRow[] = [
   { id: "doc_2", judul: "Kebijakan Cuti Tahunan 2026", kategori: "umum", jenis_dok: "-", sumber_entitas: "SOP & Kebijakan", sumber_id: "", file_id: "", mime: "application/pdf", ukuran: 215040, uploaded_by: "admin@laporantad.app", signed_by: "", created_at: "2026-01-03T09:00:00+07:00" },
   { id: "doc_3", judul: "Formulir Klaim Transport Dinas", kategori: "umum", jenis_dok: "-", sumber_entitas: "Formulir", sumber_id: "", file_id: "", mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", ukuran: 90112, uploaded_by: "admin@laporantad.app", signed_by: "", created_at: "2026-05-20T09:00:00+07:00" },
   { id: "doc_4", judul: "Jadwal Shift Juli 2026", kategori: "umum", jenis_dok: "-", sumber_entitas: "Pengumuman", sumber_id: "", file_id: "", mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ukuran: 46080, uploaded_by: "admin@laporantad.app", signed_by: "", created_at: "2026-06-28T09:00:00+07:00" },
+  // Dokumen dinas tergenerate — menandai SPD/Deklarasi yang sudah terbit.
+  { id: "doc_spd_1", judul: "Surat Perintah Dinas (SPD) — Rizky Pratama", kategori: "generated", jenis_dok: "spd", sumber_entitas: "trips", sumber_id: "trp_1", file_id: "", mime: "application/pdf", ukuran: 84000, uploaded_by: "rizky@example.com", signed_by: "rizky@example.com", created_at: "2026-07-16T09:00:00+07:00" },
+  { id: "doc_spd_2", judul: "Surat Perintah Dinas (SPD) — Rizky Pratama", kategori: "generated", jenis_dok: "spd", sumber_entitas: "trips", sumber_id: "trp_2", file_id: "", mime: "application/pdf", ukuran: 84000, uploaded_by: "rizky@example.com", signed_by: "rizky@example.com", created_at: "2026-07-03T09:00:00+07:00" },
+  { id: "doc_dek_2", judul: "Deklarasi Dinas — Rincian Biaya — Rizky Pratama", kategori: "generated", jenis_dok: "deklarasi_dinas", sumber_entitas: "trips", sumber_id: "trp_2", file_id: "", mime: "application/pdf", ukuran: 96000, uploaded_by: "rizky@example.com", signed_by: "rizky@example.com", created_at: "2026-07-07T10:00:00+07:00" },
 ];
 
 /** Bangun seluruh dataset seed. */
@@ -218,6 +256,7 @@ export function buildSeed(): { [K in keyof TableMap]: TableMap[K][] } {
     leave_types,
     leave_balances,
     trips,
+    trip_costs,
     holidays,
     documents,
     doc_templates,

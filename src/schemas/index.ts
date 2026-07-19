@@ -78,6 +78,28 @@ export const tripSchema = z
   });
 export type TripInput = z.infer<typeof tripSchema>;
 
+// Deklarasi Dinas (fase 2) — realisasi + rincian biaya, diisi sepulang dinas.
+export const tripCostSchema = z.object({
+  komponen: z.string().min(1, "Komponen wajib diisi").max(100),
+  keterangan: z.string().max(200).optional().default(""),
+  jumlah: z.number({ invalid_type_error: "Jumlah harus angka" }).int().nonnegative("Jumlah tidak boleh negatif"),
+  bukti_file_id: z.string().optional().default(""),
+});
+export type TripCostInput = z.infer<typeof tripCostSchema>;
+
+export const deklarasiSchema = z
+  .object({
+    tanggal_realisasi_mulai: tanggal,
+    tanggal_realisasi_selesai: tanggal,
+    catatan: z.string().max(500).optional().default(""),
+    biaya: z.array(tripCostSchema).min(1, "Isi minimal satu komponen biaya"),
+  })
+  .refine((v) => v.tanggal_realisasi_selesai >= v.tanggal_realisasi_mulai, {
+    message: "Tanggal kembali tidak boleh sebelum tanggal berangkat",
+    path: ["tanggal_realisasi_selesai"],
+  });
+export type DeklarasiInput = z.infer<typeof deklarasiSchema>;
+
 // ── Master data admin ────────────────────────────────────────────────────
 export const companySchema = z.object({
   nama: z.string().min(1, "Nama perusahaan wajib diisi"),

@@ -40,7 +40,8 @@ export function DinasModal() {
 
   return (
     <Sheet
-      title="Catat Perjalanan Dinas"
+      title="Rencanakan Dinas"
+      subtitle="Data untuk SPD — sebelum berangkat"
       onClose={closeModal}
       footer={
         <>

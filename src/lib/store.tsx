@@ -12,7 +12,7 @@ import {
 import type { UserRow } from "@/lib/db/tables";
 
 type Theme = "light" | "dark";
-export type ModalKind = "lembur" | "cuti" | "dinas" | "gen" | null;
+export type ModalKind = "lembur" | "cuti" | "dinas" | "gen" | "deklarasi" | null;
 
 export interface ModalState {
   kind: ModalKind;

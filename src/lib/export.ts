@@ -2,7 +2,7 @@ import ExcelJS from "exceljs";
 import { db } from "./db";
 import { listAllOvertime } from "@/repositories/overtime";
 import { listAllLeaves, hitungSaldo } from "@/repositories/leaves";
-import { listAllTrips } from "@/repositories/trips";
+import { listAllTripViews } from "@/repositories/trips";
 import { fmtJamHHMM } from "./overtime-calc";
 
 export type ExportType = "lembur" | "cuti" | "dinas";
@@ -103,7 +103,7 @@ async function buildTable(type: ExportType, filter: Filter): Promise<Table> {
     };
   }
 
-  const rows = await listAllTrips(filter);
+  const rows = await listAllTripViews(filter);
   return {
     title: "Rekap Dinas",
     columns: [
@@ -115,6 +115,8 @@ async function buildTable(type: ExportType, filter: Filter): Promise<Table> {
       { header: "Selesai", key: "tanggal_selesai", width: 12 },
       { header: "Keperluan", key: "keperluan", width: 40 },
       { header: "Transportasi", key: "transportasi", width: 16 },
+      { header: "Status", key: "status", width: 16 },
+      { header: "Total Biaya", key: "total_biaya", width: 16 },
     ],
     rows: rows.map((t) => {
       const u = users.get(t.user_id);
@@ -127,6 +129,8 @@ async function buildTable(type: ExportType, filter: Filter): Promise<Table> {
         tanggal_selesai: t.tanggal_selesai,
         keperluan: t.keperluan,
         transportasi: t.transportasi,
+        status: t.phase_label,
+        total_biaya: t.total_biaya,
       };
     }),
   };

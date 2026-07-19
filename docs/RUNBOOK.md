@@ -23,8 +23,10 @@ Ikuti [TASKS.md](TASKS.md) Fase 0. Ringkas:
    OAuth consent screen (external) + OAuth Client (redirect `https://<domain>/api/auth/callback/google`
    dan `http://localhost:3000/api/auth/callback/google`).
 2. **Service account** — buat + unduh key JSON. Catat email service account.
-3. **Spreadsheet** — buat spreadsheet, tambah 14 tab sesuai [ARSITEKTUR §6].
+3. **Spreadsheet** — buat spreadsheet, tambah 15 tab sesuai [ARSITEKTUR §6].
    Bagikan (Editor) ke email service account. Catat ID spreadsheet.
+   *Deployment lama:* jalankan `npm run setup:sheets` (idempoten) untuk
+   menambah tab baru seperti `trip_costs` tanpa menyentuh tab yang sudah ada.
 4. **Folder Drive** — buat folder `LaporanTAD/`, bagikan ke service account,
    catat ID folder.
 5. **Vercel** — hubungkan repo, set semua env (`.env.example`), deploy `main`.

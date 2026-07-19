@@ -113,7 +113,8 @@ Semua tab memakai baris pertama sebagai header; kolom `id` = ULID; `created_at`/
 | `leaves` | id, user_id, leave_type_id, tanggal_mulai, tanggal_selesai, jumlah_hari, keterangan, lampiran_file_id, status(*idem*), created_at, updated_at |
 | `leave_types` | id, nama, potong_saldo(TRUE/FALSE), wajib_lampiran(TRUE/FALSE), active |
 | `leave_balances` | id, user_id, tahun, kuota, penyesuaian, catatan, updated_at *(terpakai & sisa dihitung dari `leaves`, tidak disimpan — hindari data ganda)* |
-| `trips` | id, user_id, tujuan, tanggal_mulai, tanggal_selesai, keperluan, transportasi, keterangan, lampiran_file_id, status(*idem*), created_at, updated_at |
+| `trips` | id, user_id, tujuan, tanggal_mulai, tanggal_selesai, keperluan, transportasi, keterangan, lampiran_file_id, status(`draft`\|`spd_terbit`\|`menunggu_deklarasi`\|`selesai` — siklus hidup dua dokumen), tanggal_realisasi_mulai, tanggal_realisasi_selesai, deklarasi_catatan, created_at, updated_at |
+| `trip_costs` | id, trip_id, user_id, komponen, keterangan, jumlah(rupiah), bukti_file_id, urutan, created_at *(rincian biaya Deklarasi Dinas — satu baris per komponen)* |
 | `holidays` | id, tanggal, nama, tahun, sumber(`api`\|`manual`) |
 | `documents` | id, judul, kategori(`umum`\|`generated`), jenis_dok(`spkl`\|`spd`\|`deklarasi_dinas`\|`surat_cuti`\|`-`), sumber_entitas, sumber_id, file_id, mime, ukuran, uploaded_by, signed_by, created_at |
 | `doc_templates` | id, nama, jenis(`spkl`\|`spd`\|`deklarasi_dinas`\|`surat_cuti`), gdoc_id, keterangan, active, created_at |
@@ -133,7 +134,8 @@ Semua tab memakai baris pertama sebagai header; kolom `id` = ULID; `created_at`/
 | `GET /api/overtime?month=YYYY-MM` · `POST /api/overtime` | active | Daftar (miliknya) & catat |
 | `PATCH/DELETE /api/overtime/{id}` | pemilik | Ubah/hapus (cek kunci periode) |
 | `GET/POST /api/leaves` · `PATCH/DELETE /api/leaves/{id}` · `GET /api/leaves/balance` | active | Cuti + saldo |
-| `GET/POST /api/trips` · `PATCH/DELETE /api/trips/{id}` | active | Dinas |
+| `GET/POST /api/trips` · `GET/PATCH/DELETE /api/trips/{id}` | active | Dinas (list membawa fase & total biaya; `GET /{id}` = detail + biaya + dokumen) |
+| `PATCH /api/trips/{id}/deklarasi` | pemilik/admin | Simpan realisasi + rincian biaya (fase 2); SPD wajib terbit dulu |
 | `GET /api/holidays?year=` | active | Libur nasional |
 | `GET /api/users` | active | Direktori (tanpa kontak darurat) |
 | `GET /api/documents` · `GET /api/files/{id}` | active | Dokumen & stream berkas |

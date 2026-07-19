@@ -7,6 +7,10 @@ export type UserStatus = "pending" | "active" | "rejected" | "inactive";
 export type TipeKerja = "shift" | "nonshift";
 export type OvertimeJenis = "reguler" | "libur_nasional" | "kjk" | "cuti";
 export type TxStatus = "tercatat"; // disiapkan untuk approval fase 2
+// Siklus hidup dinas: satu perjalanan menempuh dua dokumen (SPD sebelum
+// berangkat, Deklarasi sesudah pulang). Fase "menunggu_deklarasi" bersifat
+// turunan (SPD terbit + tanggal selesai lewat) — lihat lib/trip-view.
+export type TripStatus = "draft" | "spd_terbit" | "menunggu_deklarasi" | "selesai";
 export type DocKategori = "umum" | "generated";
 export type JenisDok = "spkl" | "spd" | "deklarasi_dinas" | "surat_cuti" | "-";
 export type OptionKategori =
@@ -120,9 +124,27 @@ export interface TripRow {
   transportasi: string;
   keterangan: string;
   lampiran_file_id: string;
-  status: TxStatus;
+  status: TripStatus;
+  // Fase 2 (Deklarasi) — diisi sepulang dinas. Tanggal realisasi boleh
+  // berbeda dari rencana SPD; rincian biaya ada di tabel trip_costs.
+  tanggal_realisasi_mulai: string;
+  tanggal_realisasi_selesai: string;
+  deklarasi_catatan: string;
   created_at: string;
   updated_at: string;
+}
+
+/** Satu komponen biaya pada Deklarasi Dinas (transport, penginapan, dsb.). */
+export interface TripCostRow {
+  id: string;
+  trip_id: string;
+  user_id: string; // pemilik (denormalisasi) untuk cakupan & rekap admin
+  komponen: string;
+  keterangan: string;
+  jumlah: number; // rupiah
+  bukti_file_id: string;
+  urutan: number;
+  created_at: string;
 }
 
 export interface HolidayRow {
@@ -191,6 +213,7 @@ export interface TableMap {
   leave_types: LeaveTypeRow;
   leave_balances: LeaveBalanceRow;
   trips: TripRow;
+  trip_costs: TripCostRow;
   holidays: HolidayRow;
   documents: DocumentRow;
   doc_templates: DocTemplateRow;
@@ -224,7 +247,13 @@ export const TABLE_COLUMNS: Record<TableName, string[]> = {
   leave_balances: ["id", "user_id", "tahun", "kuota", "penyesuaian", "catatan", "updated_at"],
   trips: [
     "id", "user_id", "tujuan", "tanggal_mulai", "tanggal_selesai", "keperluan",
-    "transportasi", "keterangan", "lampiran_file_id", "status", "created_at", "updated_at",
+    "transportasi", "keterangan", "lampiran_file_id", "status",
+    "tanggal_realisasi_mulai", "tanggal_realisasi_selesai", "deklarasi_catatan",
+    "created_at", "updated_at",
+  ],
+  trip_costs: [
+    "id", "trip_id", "user_id", "komponen", "keterangan", "jumlah",
+    "bukti_file_id", "urutan", "created_at",
   ],
   holidays: ["id", "tanggal", "nama", "tahun", "sumber"],
   documents: [
@@ -250,6 +279,7 @@ export const NUMBER_COLUMNS: Partial<Record<TableName, string[]>> = {
   overtime: ["total_jam"],
   leaves: ["jumlah_hari"],
   leave_balances: ["tahun", "kuota", "penyesuaian"],
+  trip_costs: ["jumlah", "urutan"],
   holidays: ["tahun"],
   documents: ["ukuran"],
 };

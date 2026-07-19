@@ -1,12 +1,12 @@
 import { ok, route } from "@/lib/api";
 import { requireActive } from "@/lib/session";
-import { createTrip, listTripsByUser } from "@/repositories/trips";
+import { createTrip, listTripViewsByUser } from "@/repositories/trips";
 import { readJson } from "@/lib/api";
 import { tripSchema } from "@/schemas";
 
 export const GET = route(async () => {
   const u = await requireActive();
-  return ok({ items: await listTripsByUser(u.id) });
+  return ok({ items: await listTripViewsByUser(u.id) });
 });
 
 export const POST = route(async (req) => {

@@ -1,4 +1,4 @@
-// Bootstrap spreadsheet: buat 14 tab (sesuai ARSITEKTUR §6) secara otomatis.
+// Bootstrap spreadsheet: buat seluruh tab (sesuai ARSITEKTUR §6) secara otomatis.
 // Jalankan sekali pada spreadsheet kosong sebelum `npm run seed`.
 //   npm run setup:sheets
 import "./_env";
@@ -23,7 +23,7 @@ async function main() {
 
   const toAdd = tables.filter((t) => !existing.has(t));
   if (toAdd.length === 0) {
-    console.log("✓ Semua 14 tab sudah ada. Lanjut: npm run seed");
+    console.log(`✓ Semua ${tables.length} tab sudah ada. Lanjut: npm run seed`);
     return;
   }
 

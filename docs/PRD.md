@@ -173,11 +173,20 @@ Formulir dipecah menjadi **3 langkah** di ponsel (Data Diri → Pekerjaan → Ko
 
 ### 5.5 Dinas (DNS)
 
+Satu dinas menempuh **dua dokumen** pada dua waktu berbeda: **SPD** dibuat
+*sebelum* berangkat dan **Deklarasi** (rincian biaya) diisi *sesudah* pulang.
+Aplikasi memodelkannya sebagai satu perjalanan yang melewati fase:
+`draft → spd_terbit → menunggu_deklarasi → selesai` (fase `menunggu_deklarasi`
+diturunkan saat SPD terbit & tanggal selesai lewat — lihat `lib/trip-view`).
+
 | ID | Persyaratan | Prio |
 |----|-------------|:---:|
-| FR-DNS-01 | Form pencatatan: tujuan (kota/tempat), tanggal mulai, tanggal selesai, keperluan, moda transportasi (opsional), keterangan, lampiran (opsional) | W |
-| FR-DNS-02 | Daftar dinas milik sendiri dikelompokkan bulan → tanggal; edit/hapus selama periode belum terkunci | W |
-| FR-DNS-03 | Admin melihat & memfilter dinas semua pekerja | W |
+| FR-DNS-01 | Form rencana (fase SPD): tujuan (kota/tempat), tanggal mulai, tanggal selesai, keperluan, moda transportasi (opsional), keterangan, lampiran (opsional) | W |
+| FR-DNS-02 | Daftar dinas milik sendiri; tiap kartu menampilkan status dua dokumen (SPD & Deklarasi) & fase; edit/hapus selama periode belum terkunci | W |
+| FR-DNS-03 | Admin melihat & memfilter dinas semua pekerja, termasuk fase & total biaya | W |
+| FR-DNS-04 | Halaman detail dinas: stepper fase + modul SPD (Buat/Unduh) + modul Deklarasi (terkunci sampai SPD terbit) | W |
+| FR-DNS-05 | Form Deklarasi (fase 2): tanggal realisasi (boleh beda dari rencana), catatan, rincian biaya per komponen (komponen, keterangan, jumlah rupiah, bukti/lampiran per komponen) dengan total otomatis | W |
+| FR-DNS-06 | Generate Deklarasi menyertakan rincian biaya sebagai baris tabel berulang; menutup dinas (fase `selesai`) | S |
 
 ### 5.6 Data Pekerja (PKJ)
 
@@ -242,6 +251,7 @@ Detail kolom per tab spreadsheet ada di [ARSITEKTUR.md](ARSITEKTUR.md) §6.
 users ──< overtime          (user_id)
 users ──< leaves            (user_id)
 users ──< trips             (user_id)
+trips ──< trip_costs        (trip_id — rincian biaya Deklarasi)
 users ──< leave_balances    (user_id, per tahun)
 companies ──< users         (company_id)
 holidays ──< overtime       (holiday_id, jenis Libur Nasional)

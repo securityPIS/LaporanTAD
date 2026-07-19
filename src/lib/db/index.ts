@@ -55,6 +55,7 @@ const CACHE_TTL: Record<TableName, number> = {
   leaves: 15_000,
   leave_balances: 15_000,
   trips: 15_000,
+  trip_costs: 15_000,
   documents: 15_000,
   audit_log: 15_000,
 };

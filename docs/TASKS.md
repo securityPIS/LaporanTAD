@@ -41,7 +41,7 @@ flowchart LR
 |----|-------|-----------|:---:|
 | T-001 | **Buat Google Cloud Project**: aktifkan Sheets API, Drive API; konfigurasi OAuth consent screen (external) + credential OAuth (redirect Vercel & localhost) | — | M |
 | T-002 | **Buat service account** + key JSON; catat email service account | T-001 | S |
-| T-003 | **Buat spreadsheet database** dengan 14 tab & header sesuai [ARSITEKTUR.md](ARSITEKTUR.md) §6; bagikan ke service account (Editor); protect semua tab | T-002 | M |
+| T-003 | **Buat spreadsheet database** dengan 15 tab & header sesuai [ARSITEKTUR.md](ARSITEKTUR.md) §6; bagikan ke service account (Editor); protect semua tab | T-002 | M |
 | T-004 | **Buat struktur folder Drive** (§5) + bagikan ke service account; catat semua ID folder | T-002 | S |
 | T-005 | **Init repo Next.js** (App Router, TS, Tailwind, shadcn/ui, ESLint, Prettier) + git init + push ke GitHub | — | M |
 | T-006 | **Deploy pertama ke Vercel** + set semua environment variables (§11) | T-005, T-001 | S |
