@@ -34,22 +34,18 @@ const AI = "fill-[var(--accent-ink)]";
 
 export function TemplateGuide() {
   return (
-    <Card className="mt-5 overflow-hidden">
-      <details open className="group">
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 p-4">
-          <span className="flex items-center gap-3">
-            <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-accent-weak text-accent-ink">
-              <Icon name="docCheck" size={19} />
-            </span>
-            <span>
-              <span className="block text-[14px] font-extrabold text-text">Panduan Membuat Template</span>
-              <span className="block text-[11.5px] text-muted">Cara menyusun Google Docs + placeholder menjadi PDF</span>
-            </span>
-          </span>
-          <span className="text-muted transition-transform group-open:rotate-180"><Icon name="chevronDown" size={18} /></span>
-        </summary>
+    <Card className="mt-4 p-4">
+      <div className="mb-4 flex items-center gap-3">
+        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-accent-weak text-accent-ink">
+          <Icon name="docCheck" size={19} />
+        </span>
+        <div>
+          <div className="text-[14px] font-extrabold text-text">Panduan Membuat Template</div>
+          <div className="text-[11.5px] text-muted">Cara menyusun Google Docs + placeholder menjadi PDF</div>
+        </div>
+      </div>
 
-        <div className="border-t border-border p-4 text-[12.5px] leading-relaxed text-muted">
+      <div className="text-[12.5px] leading-relaxed text-muted">
           <p>
             Format dokumen diatur lewat <b className="text-text">Google Docs</b>, bukan kode. Anda mengatur kop surat &amp; tata letak
             langsung di Google Docs; sistem hanya mengisi data ke <b className="text-text">placeholder</b> <Ph>{"{{...}}"}</Ph>.
@@ -207,8 +203,7 @@ export function TemplateGuide() {
           <p className="mt-4 rounded-xl bg-accent-weak px-3 py-2 text-[11.5px] text-accent-ink">
             <b>Catatan akses:</b> dokumen Google Docs harus dapat diakses akun yang menjalankan docgen (bagikan sebagai <b>Editor</b> bila dibuat dari akun berbeda), agar sistem dapat menyalinnya saat generate.
           </p>
-        </div>
-      </details>
+      </div>
     </Card>
   );
 }
