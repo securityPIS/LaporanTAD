@@ -55,6 +55,50 @@ export interface OvertimeGroupVM {
   items: OvertimeCardVM[];
 }
 
+export interface OvertimeBreakdownVM {
+  jenis: OvertimeJenis;
+  label: string;
+  jc: string;
+  jw: string;
+  num: number;
+  jam: string;
+}
+
+export interface OvertimeSummaryVM {
+  monthKey: string;
+  monthLabel: string;
+  totalNum: number;
+  total: string;
+  count: number;
+  breakdown: OvertimeBreakdownVM[];
+}
+
+/**
+ * Ringkasan satu bulan lembur untuk kartu ikhtisar di halaman lembur.
+ * Menerima satu grup (mis. bulan terbaru dari `groupOvertimeRows`) dan
+ * menjumlahkan total jam serta rinciannya per jenis (urut terbanyak).
+ */
+export function summarizeMonth(group: OvertimeGroupVM | undefined): OvertimeSummaryVM | null {
+  if (!group) return null;
+  const by = new Map<OvertimeJenis, number>();
+  group.items.forEach((it) => by.set(it.jenis, (by.get(it.jenis) ?? 0) + it.totalNum));
+  const breakdown: OvertimeBreakdownVM[] = [...by.entries()]
+    .map(([jenis, num]) => {
+      const m = jenisMeta(jenis);
+      return { jenis, label: m.label, jc: m.c, jw: m.w, num, jam: fmtJamHHMM(num) };
+    })
+    .sort((a, b) => b.num - a.num);
+  const totalNum = group.items.reduce((a, it) => a + it.totalNum, 0);
+  return {
+    monthKey: group.key,
+    monthLabel: group.label,
+    totalNum,
+    total: fmtJamHHMM(totalNum),
+    count: group.items.length,
+    breakdown,
+  };
+}
+
 export function groupOvertimeRows(list: OvertimeApiRow[]): OvertimeGroupVM[] {
   const by: Record<string, OvertimeApiRow[]> = {};
   list.forEach((o) => {

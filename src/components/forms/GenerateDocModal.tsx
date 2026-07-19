@@ -27,6 +27,9 @@ export function GenerateDocModal() {
   // Mode terkunci: dipanggil dari halaman detail dinas dengan jenis & sumber
   // sudah ditetapkan (SPD / Deklarasi untuk satu perjalanan tertentu).
   const lockJenis = Boolean(p.lockJenis);
+  // Mode SPKL-saja: dipanggil dari halaman lembur — jenis dikunci ke SPKL,
+  // pemilih jenis disembunyikan, namun pemilih rentang tanggal tetap tampil.
+  const spklOnly = Boolean(p.spklOnly);
   const lockedLabel = String(p.label ?? "");
   const [jenis, setJenis] = useState<Jenis>((p.jenis as Jenis) || "spkl");
   const [sumberId, setSumberId] = useState((p.sumberId as string) || "");
@@ -129,27 +132,35 @@ export function GenerateDocModal() {
         </div>
       ) : (
         <>
-          <div>
-            <label className={LBL}>Jenis dokumen</label>
-            <div className="grid grid-cols-2 gap-2">
-              {GEN_DEFS.map((g) => {
-                const on = jenis === g.key;
-                return (
-                  <button
-                    key={g.key}
-                    onClick={() => setJenis(g.key)}
-                    className={cn(
-                      "flex flex-col items-start rounded-xl border-[1.5px] px-[14px] py-3 text-left",
-                      on ? "border-accent bg-accent-weak text-accent-ink" : "border-border bg-surface text-text",
-                    )}
-                  >
-                    <span className="text-[13px] font-extrabold">{g.code}</span>
-                    <span className="mt-[2px] text-[10.5px] opacity-80">{g.name}</span>
-                  </button>
-                );
-              })}
+          {spklOnly ? (
+            <div className="rounded-2xl border border-border bg-surface-2 px-[14px] py-3">
+              <div className="text-[10.5px] font-bold uppercase tracking-wide text-faint">SPKL</div>
+              <div className="mt-[3px] text-[13.5px] font-extrabold">Surat Perintah Kerja Lembur</div>
+              <div className="mt-[2px] text-[11.5px] text-muted">Dari catatan lembur pada rentang tanggal</div>
             </div>
-          </div>
+          ) : (
+            <div>
+              <label className={LBL}>Jenis dokumen</label>
+              <div className="grid grid-cols-2 gap-2">
+                {GEN_DEFS.map((g) => {
+                  const on = jenis === g.key;
+                  return (
+                    <button
+                      key={g.key}
+                      onClick={() => setJenis(g.key)}
+                      className={cn(
+                        "flex flex-col items-start rounded-xl border-[1.5px] px-[14px] py-3 text-left",
+                        on ? "border-accent bg-accent-weak text-accent-ink" : "border-border bg-surface text-text",
+                      )}
+                    >
+                      <span className="text-[13px] font-extrabold">{g.code}</span>
+                      <span className="mt-[2px] text-[10.5px] opacity-80">{g.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {jenis === "spkl" ? (
             <div>
