@@ -35,8 +35,8 @@ export function PekerjaSidebar() {
   const { me } = useApp();
 
   return (
-    <aside className="hidden wide:sticky wide:top-[76px] wide:z-30 wide:flex wide:h-[calc(100vh-76px)] wide:flex-none wide:flex-col wide:items-center wide:pb-4 wide:pl-[clamp(10px,3vw,22px)] wide:pr-1">
-      <nav className="flex h-full w-[68px] flex-col items-center gap-[6px] rounded-3xl bg-surface px-[10px] py-4 shadow-lg">
+    <aside className="hidden wide:z-30 wide:flex wide:flex-none wide:flex-col wide:items-center wide:self-start wide:pt-[14px]">
+      <nav className="flex w-[68px] flex-col items-center gap-[6px] rounded-3xl bg-surface px-[10px] py-4 shadow-lg">
         {NAV.map((n) => {
           const active = pathname === n.href;
           return (
@@ -57,8 +57,9 @@ export function PekerjaSidebar() {
           );
         })}
 
+        {me && <div className="my-[6px] h-px w-8 flex-none self-center bg-border-strong" />}
         {me && (
-          <div className="group relative mt-auto flex h-[46px] w-[46px] flex-none items-center justify-center rounded-2xl bg-accent-weak text-[12.5px] font-extrabold text-accent shadow-inset">
+          <div className="group relative flex h-[46px] w-[46px] flex-none items-center justify-center rounded-2xl bg-accent-weak text-[12.5px] font-extrabold text-accent shadow-inset">
             {initials(me.nama_lengkap)}
             <span className="rail-tip">
               {me.nama_lengkap} · {me.role === "admin" ? "Admin" : "Pekerja"}
