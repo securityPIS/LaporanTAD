@@ -35,7 +35,7 @@ export function PekerjaSidebar() {
   const { me } = useApp();
 
   return (
-    <aside className="hidden wide:z-30 wide:flex wide:flex-none wide:flex-col wide:items-center wide:self-start wide:pt-[14px]">
+    <aside className="hidden wide:z-30 wide:flex wide:flex-none wide:flex-col wide:items-center wide:self-start wide:pt-[76px]">
       <nav className="flex w-[68px] flex-col items-center gap-[6px] rounded-3xl bg-surface px-[10px] py-4 shadow-lg">
         {NAV.map((n) => {
           const active = pathname === n.href;

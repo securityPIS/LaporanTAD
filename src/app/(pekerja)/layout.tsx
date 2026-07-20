@@ -12,7 +12,7 @@ export default async function PekerjaLayout({ children }: { children: React.Reac
   if (!user || user.status !== "active") redirect(gatePath(user, Boolean(email)));
 
   return (
-    <div className="flex min-h-screen flex-col bg-bg text-text wide:h-screen wide:flex-row wide:justify-center wide:gap-[10px] wide:overflow-hidden wide:px-[clamp(10px,3vw,22px)]">
+    <div className="flex min-h-screen flex-col bg-bg text-text wide:h-screen wide:flex-row wide:justify-center wide:gap-[20px] wide:overflow-hidden wide:px-[clamp(10px,3vw,22px)]">
       <PekerjaSidebar />
 
       {/* Kolom terpusat: top bar + kotak konten berbagi lebar (max 980px) & posisi yang sama */}
