@@ -218,9 +218,9 @@ const trips: TripRow[] = [
 ];
 
 const trip_costs: TripCostRow[] = [
-  { id: "tc_1", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Transportasi", keterangan: "Tiket kereta PP", jumlah: 1200000, bukti_file_id: "", urutan: 1, created_at: "2026-07-07T09:00:00+07:00" },
-  { id: "tc_2", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Penginapan", keterangan: "1 malam", jumlah: 900000, bukti_file_id: "", urutan: 2, created_at: "2026-07-07T09:00:00+07:00" },
-  { id: "tc_3", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Uang harian", keterangan: "Lumsum 2 hari", jumlah: 300000, bukti_file_id: "", urutan: 3, created_at: "2026-07-07T09:00:00+07:00" },
+  { id: "tc_1", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Transportasi Umum (Kereta PP)", keterangan: "Tiket kereta PP", vol: 1, tarif: 1200000, jumlah: 1200000, bukti_file_id: "", urutan: 1, created_at: "2026-07-07T09:00:00+07:00" },
+  { id: "tc_2", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Akomodasi Penginapan", keterangan: "1 malam", vol: 1, tarif: 900000, jumlah: 900000, bukti_file_id: "", urutan: 2, created_at: "2026-07-07T09:00:00+07:00" },
+  { id: "tc_3", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Uang Harian", keterangan: "2 hari", vol: 2, tarif: 150000, jumlah: 300000, bukti_file_id: "", urutan: 3, created_at: "2026-07-07T09:00:00+07:00" },
 ];
 
 const leave_balances: LeaveBalanceRow[] = users

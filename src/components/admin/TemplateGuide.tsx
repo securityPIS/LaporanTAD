@@ -196,9 +196,16 @@ export function TemplateGuide() {
             <p className="font-bold text-text">Daftar placeholder per jenis</p>
             <p className="mt-1"><b>Umum (semua):</b> <Ph>{"{{nama}}"}</Ph> <Ph>{"{{nopek}}"}</Ph> <Ph>{"{{divisi}}"}</Ph> <Ph>{"{{bagian}}"}</Ph> <Ph>{"{{lokasi_kerja}}"}</Ph> <Ph>{"{{tanggal_cetak}}"}</Ph> <Ph>{"{{ttd}}"}</Ph></p>
             <p className="mt-1"><b>Surat Cuti:</b> <Ph>{"{{jenis_cuti}}"}</Ph> <Ph>{"{{tanggal_mulai}}"}</Ph> <Ph>{"{{tanggal_selesai}}"}</Ph> <Ph>{"{{durasi}}"}</Ph> <Ph>{"{{jumlah_hari}}"}</Ph> <Ph>{"{{keterangan}}"}</Ph></p>
-            <p className="mt-1"><b>SPD / Deklarasi Dinas:</b> <Ph>{"{{tujuan}}"}</Ph> <Ph>{"{{tanggal_mulai}}"}</Ph> <Ph>{"{{tanggal_selesai}}"}</Ph> <Ph>{"{{durasi}}"}</Ph> <Ph>{"{{keperluan}}"}</Ph> <Ph>{"{{transportasi}}"}</Ph> <Ph>{"{{keterangan}}"}</Ph></p>
+            <p className="mt-1"><b>SPD:</b> <Ph>{"{{tujuan}}"}</Ph> <Ph>{"{{tanggal_mulai}}"}</Ph> <Ph>{"{{tanggal_selesai}}"}</Ph> <Ph>{"{{durasi}}"}</Ph> <Ph>{"{{keperluan}}"}</Ph> <Ph>{"{{transportasi}}"}</Ph> <Ph>{"{{keterangan}}"}</Ph></p>
+            <p className="mt-1"><b>Deklarasi Dinas (header):</b> <Ph>{"{{keperluan}}"}</Ph> <Ph>{"{{dari}}"}</Ph> <Ph>{"{{tujuan}}"}</Ph> <Ph>{"{{realisasi_mulai}}"}</Ph> <Ph>{"{{realisasi_selesai}}"}</Ph> <Ph>{"{{lama_hari}}"}</Ph> <Ph>{"{{catatan}}"}</Ph> <Ph>{"{{total_biaya}}"}</Ph> — lalu tabel Rincian <Ph>{"{{@no}}"}</Ph> <Ph>{"{{@komponen}}"}</Ph> <Ph>{"{{@vol}}"}</Ph> <Ph>{"{{@nilai}}"}</Ph> <Ph>{"{{@mata_uang}}"}</Ph> <Ph>{"{{@jumlah}}"}</Ph>.</p>
             <p className="mt-1"><b>SPKL (header):</b> <Ph>{"{{periode}}"}</Ph> <Ph>{"{{total_catatan}}"}</Ph> <Ph>{"{{total_jam}}"}</Ph> — lalu tabel baris <Ph>{"{{@no}}"}</Ph> <Ph>{"{{@tanggal}}"}</Ph> <Ph>{"{{@jenis}}"}</Ph> <Ph>{"{{@jam}}"}</Ph> <Ph>{"{{@total_jam}}"}</Ph> <Ph>{"{{@keterangan}}"}</Ph>.</p>
           </div>
+
+          <p className="mt-3 rounded-xl border border-dinas bg-dinas-weak px-3 py-2 text-[11.5px] text-dinas">
+            <b>Template Deklarasi Dinas otomatis:</b> jalankan fungsi <code className="font-mono">createDeklarasiTemplate</code> di
+            editor Apps Script — sistem membuat Google Docs Deklarasi (format Pengeluaran Dinas sesuai ketentuan) beserta seluruh
+            placeholder di atas, lalu tinggal daftarkan ID-nya di sini.
+          </p>
 
           <p className="mt-4 rounded-xl bg-accent-weak px-3 py-2 text-[11.5px] text-accent-ink">
             <b>Catatan akses:</b> dokumen Google Docs harus dapat diakses akun yang menjalankan docgen (bagikan sebagai <b>Editor</b> bila dibuat dari akun berbeda), agar sistem dapat menyalinnya saat generate.

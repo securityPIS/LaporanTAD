@@ -63,12 +63,18 @@ export default function DinasDetailPage() {
           realisasi_mulai: t.tanggal_realisasi_mulai,
           realisasi_selesai: t.tanggal_realisasi_selesai,
           catatan: t.deklarasi_catatan,
-          biaya: costs.map((c) => ({
-            komponen: c.komponen,
-            keterangan: c.keterangan,
-            jumlah: String(c.jumlah),
-            bukti_file_id: c.bukti_file_id,
-          })),
+          biaya: costs.map((c) => {
+            // Data lama tanpa vol/tarif: pulihkan sebagai vol 1 × tarif = jumlah.
+            const tarif = c.tarif || c.jumlah;
+            const vol = c.vol || 1;
+            return {
+              komponen: c.komponen,
+              keterangan: c.keterangan,
+              vol: String(vol),
+              tarif: tarif ? String(tarif) : "",
+              bukti_file_id: c.bukti_file_id,
+            };
+          }),
         },
       },
       reload,
@@ -168,7 +174,11 @@ export default function DinasDetailPage() {
                       <div key={c.id} className="flex items-center justify-between gap-2 border-b border-dashed border-border py-1 last:border-none">
                         <div className="min-w-0">
                           <div className="truncate text-[12.5px] font-bold">{c.komponen}</div>
-                          {c.keterangan && <div className="truncate text-[10.5px] text-faint">{c.keterangan}</div>}
+                          {c.tarif > 0 && c.vol > 0 ? (
+                            <div className="truncate text-[10.5px] text-faint">{c.vol} × {fmtRupiah(c.tarif)}{c.keterangan ? ` · ${c.keterangan}` : ""}</div>
+                          ) : (
+                            c.keterangan && <div className="truncate text-[10.5px] text-faint">{c.keterangan}</div>
+                          )}
                         </div>
                         <div className="flex items-center gap-1.5">
                           {splitIds(c.bukti_file_id).map((fid, k) => (

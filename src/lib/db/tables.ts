@@ -141,7 +141,11 @@ export interface TripCostRow {
   user_id: string; // pemilik (denormalisasi) untuk cakupan & rekap admin
   komponen: string;
   keterangan: string;
-  jumlah: number; // rupiah
+  // Rincian tarif sesuai ketentuan dinas: jumlah = vol × tarif.
+  // vol = Vol/Hari (mis. hari, malam, km), tarif = Nilai Rupiah satuan.
+  vol: number;
+  tarif: number;
+  jumlah: number; // rupiah (hasil vol × tarif)
   bukti_file_id: string;
   urutan: number;
   created_at: string;
@@ -251,9 +255,12 @@ export const TABLE_COLUMNS: Record<TableName, string[]> = {
     "tanggal_realisasi_mulai", "tanggal_realisasi_selesai", "deklarasi_catatan",
     "created_at", "updated_at",
   ],
+  // Kolom vol & tarif ditambahkan DI AKHIR (bukan disisipkan) agar posisi kolom
+  // lama tak bergeser — driver Sheets memetakan nilai berdasarkan urutan kolom,
+  // sehingga baris lama (tanpa vol/tarif) tetap terbaca benar (default 0).
   trip_costs: [
     "id", "trip_id", "user_id", "komponen", "keterangan", "jumlah",
-    "bukti_file_id", "urutan", "created_at",
+    "bukti_file_id", "urutan", "created_at", "vol", "tarif",
   ],
   holidays: ["id", "tanggal", "nama", "tahun", "sumber"],
   documents: [
@@ -279,7 +286,7 @@ export const NUMBER_COLUMNS: Partial<Record<TableName, string[]>> = {
   overtime: ["total_jam"],
   leaves: ["jumlah_hari"],
   leave_balances: ["tahun", "kuota", "penyesuaian"],
-  trip_costs: ["jumlah", "urutan"],
+  trip_costs: ["vol", "tarif", "jumlah", "urutan"],
   holidays: ["tahun"],
   documents: ["ukuran"],
 };

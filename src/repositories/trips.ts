@@ -118,13 +118,17 @@ async function replaceCostsForTrip(trip: TripRow, items: DeklarasiInput["biaya"]
   const now = nowWIB();
   for (let i = 0; i < items.length; i++) {
     const it = items[i];
+    const vol = it.vol ?? 1;
+    const jumlah = Math.round(vol * it.tarif); // ketentuan: jumlah = vol × tarif
     await db.insert("trip_costs", {
       id: newId(),
       trip_id: trip.id,
       user_id: trip.user_id,
       komponen: it.komponen,
       keterangan: it.keterangan ?? "",
-      jumlah: it.jumlah,
+      vol,
+      tarif: it.tarif,
+      jumlah,
       bukti_file_id: it.bukti_file_id ?? "",
       urutan: i + 1,
       created_at: now,

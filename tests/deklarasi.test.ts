@@ -23,8 +23,8 @@ function trip(p: Partial<TripRow>): TripRow {
   };
 }
 
-function cost(komponen: string, jumlah: number, urutan: number): TripCostRow {
-  return { id: `c${urutan}`, trip_id: "trp_x", user_id: "u1", komponen, keterangan: "", jumlah, bukti_file_id: "", urutan, created_at: "" };
+function cost(komponen: string, jumlah: number, urutan: number, vol = 1, tarif = jumlah): TripCostRow {
+  return { id: `c${urutan}`, trip_id: "trp_x", user_id: "u1", komponen, keterangan: "", vol, tarif, jumlah, bukti_file_id: "", urutan, created_at: "" };
 }
 
 test("fmtRupiah: pemisah ribuan", () => {
@@ -46,7 +46,7 @@ test("lamaHari: inklusif", () => {
 
 test("buildDeklarasiRows: bernomor & urut, jumlah terformat", () => {
   const rows = buildDeklarasiRows([
-    cost("Uang harian", 300_000, 3),
+    cost("Uang Harian", 600_000, 3, 4, 150_000), // vol 4 × Rp 150.000
     cost("Transportasi", 1_200_000, 1),
     cost("Penginapan", 900_000, 2),
   ]);
@@ -54,13 +54,28 @@ test("buildDeklarasiRows: bernomor & urut, jumlah terformat", () => {
   assert.equal(rows[0].no, "1");
   assert.equal(rows[0].komponen, "Transportasi"); // urut naik
   assert.equal(rows[0].jumlah, "Rp 1.200.000");
-  assert.equal(rows[2].komponen, "Uang harian");
+  assert.equal(rows[2].komponen, "Uang Harian");
+  // Kolom Vol/Hari & Nilai Rupiah tampil saat tarif satuan diketahui.
+  assert.equal(rows[2].vol, "4");
+  assert.equal(rows[2].nilai, "Rp 150.000");
+  assert.equal(rows[2].jumlah, "Rp 600.000");
+  assert.equal(rows[2].mata_uang, "");
+});
+
+test("buildDeklarasiRows: pos tanpa tarif satuan → Vol & Nilai kosong", () => {
+  const rows = buildDeklarasiRows([
+    { id: "cx", trip_id: "trp_x", user_id: "u1", komponen: "Akomodasi", keterangan: "", vol: 0, tarif: 0, jumlah: 750_000, bukti_file_id: "", urutan: 1, created_at: "" },
+  ]);
+  assert.equal(rows[0].vol, "");
+  assert.equal(rows[0].nilai, "");
+  assert.equal(rows[0].jumlah, "Rp 750.000");
 });
 
 test("buildDeklarasiHeader: realisasi, total, & lama hari", () => {
   const costs = [cost("Transportasi", 1_200_000, 1), cost("Penginapan", 900_000, 2)];
   const ph = buildDeklarasiHeader(owner, trip({}), costs, "2026-07-08");
   assert.equal(ph.nama, "Budi Santoso");
+  assert.equal(ph.dari, "Jakarta"); // asal = lokasi kerja pemohon
   assert.equal(ph.tujuan, "Bandung");
   assert.equal(ph.total_biaya, "Rp 2.100.000");
   assert.equal(ph.total_komponen, "2");

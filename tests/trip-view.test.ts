@@ -31,7 +31,7 @@ function trip(p: Partial<TripRow>): TripRow {
 }
 
 function cost(jumlah: number, urutan = 1): TripCostRow {
-  return { id: `c${urutan}`, trip_id: "trp_x", user_id: "u1", komponen: "X", keterangan: "", jumlah, bukti_file_id: "", urutan, created_at: "" };
+  return { id: `c${urutan}`, trip_id: "trp_x", user_id: "u1", komponen: "X", keterangan: "", vol: 1, tarif: jumlah, jumlah, bukti_file_id: "", urutan, created_at: "" };
 }
 
 test("tripPhase: draft saat status draft", () => {

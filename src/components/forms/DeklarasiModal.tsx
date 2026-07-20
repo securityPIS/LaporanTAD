@@ -13,15 +13,39 @@ import { joinIds, splitIds } from "@/lib/files";
 interface CostDraft {
   komponen: string;
   keterangan: string;
-  jumlah: string; // string agar input kosong tak jadi 0
+  vol: string; // Vol/Hari — string agar input kosong tak jadi 0
+  tarif: string; // Nilai Rupiah satuan
   bukti_file_id: string; // id berkas bukti (bisa >1, dipisah koma)
 }
 
-// Komponen biaya yang lazim — dipakai sebagai tombol cepat & baris awal.
-const KOMPONEN_UMUM = ["Transportasi", "Penginapan", "Uang harian", "Taksi/lokal", "Konsumsi", "Lain-lain"];
+// Komponen biaya sesuai Ketentuan Dinas (Lampiran ketentuan & manfaat).
+// tarif = Nilai Rupiah satuan (0 = sesuai realisasi/invoice), satuan = unit Vol/Hari.
+interface KetentuanBiaya {
+  nama: string;
+  tarif: number;
+  satuan: string;
+  hint: string;
+}
+const KETENTUAN: KetentuanBiaya[] = [
+  { nama: "Uang Harian", tarif: 150_000, satuan: "hari", hint: "Rp 150.000 / hari" },
+  { nama: "Akomodasi Penginapan", tarif: 0, satuan: "malam", hint: "≤ Rp 600.000 / malam · realisasi + invoice" },
+  { nama: "Transport Lokal", tarif: 50_000, satuan: "hari", hint: "Rp 50.000 / hari · sesuai undangan" },
+  { nama: "Transport Bandara (Jabodetabek)", tarif: 150_000, satuan: "kali", hint: "Rp 150.000 · umum PP stasiun/terminal Rp 225.000" },
+  { nama: "Transport Bandara (Non-Jabodetabek)", tarif: 150_000, satuan: "kali", hint: "Rp 150.000" },
+  { nama: "Kendaraan Pribadi", tarif: 2_000, satuan: "km", hint: "Rp 2.000 / km · ≤ 200 km sekali jalan" },
+  { nama: "Transportasi Umum", tarif: 0, satuan: "tiket", hint: "Ekonomi / LCC · realisasi + boarding pass" },
+  { nama: "Lain-lain", tarif: 0, satuan: "", hint: "Sesuai realisasi" },
+];
+const KOMPONEN_UMUM = KETENTUAN.map((k) => k.nama);
 
-function blankRow(komponen = ""): CostDraft {
-  return { komponen, keterangan: "", jumlah: "", bukti_file_id: "" };
+function blankRow(nama = "", tarif = 0): CostDraft {
+  return { komponen: nama, keterangan: "", vol: "1", tarif: tarif ? String(tarif) : "", bukti_file_id: "" };
+}
+function rowFromKetentuan(k: KetentuanBiaya): CostDraft {
+  return { komponen: k.nama, keterangan: "", vol: "1", tarif: k.tarif ? String(k.tarif) : "", bukti_file_id: "" };
+}
+function rowJumlah(r: CostDraft): number {
+  return Math.round((Number(r.vol) || 0) * (Number(r.tarif) || 0));
 }
 
 export function DeklarasiModal() {
@@ -43,12 +67,12 @@ export function DeklarasiModal() {
   const [rows, setRows] = useState<CostDraft[]>(
     initial.biaya && initial.biaya.length > 0
       ? initial.biaya
-      : [blankRow("Transportasi"), blankRow("Penginapan"), blankRow("Uang harian")],
+      : [rowFromKetentuan(KETENTUAN[0]), blankRow("Akomodasi Penginapan"), rowFromKetentuan(KETENTUAN[2])],
   );
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const total = rows.reduce((s, r) => s + (Number(r.jumlah) || 0), 0);
+  const total = rows.reduce((s, r) => s + rowJumlah(r), 0);
   const selesaiBeda = selesai && planSelesai && selesai !== planSelesai;
 
   function patchRow(i: number, patch: Partial<CostDraft>) {
@@ -56,6 +80,9 @@ export function DeklarasiModal() {
   }
   function addRow() {
     setRows((rs) => [...rs, blankRow()]);
+  }
+  function addKetentuan(k: KetentuanBiaya) {
+    setRows((rs) => [...rs, rowFromKetentuan(k)]);
   }
   function removeRow(i: number) {
     setRows((rs) => (rs.length <= 1 ? rs : rs.filter((_, idx) => idx !== i)));
@@ -66,15 +93,17 @@ export function DeklarasiModal() {
     if (!mulai || !selesai) return setErr("Tanggal berangkat & kembali wajib diisi.");
     if (selesai < mulai) return setErr("Tanggal kembali tidak boleh sebelum berangkat.");
     const biaya = rows
-      .filter((r) => r.komponen.trim() && r.jumlah !== "")
+      .filter((r) => r.komponen.trim() && r.tarif !== "")
       .map((r) => ({
         komponen: r.komponen.trim(),
         keterangan: r.keterangan.trim(),
-        jumlah: Math.round(Number(r.jumlah) || 0),
+        vol: Number(r.vol) || 1,
+        tarif: Math.round(Number(r.tarif) || 0),
         bukti_file_id: r.bukti_file_id,
       }));
-    if (biaya.length === 0) return setErr("Isi minimal satu komponen biaya beserta jumlahnya.");
-    if (biaya.some((b) => b.jumlah < 0)) return setErr("Jumlah biaya tidak boleh negatif.");
+    if (biaya.length === 0) return setErr("Isi minimal satu komponen biaya beserta tarifnya.");
+    if (biaya.some((b) => b.tarif < 0)) return setErr("Tarif biaya tidak boleh negatif.");
+    if (biaya.some((b) => b.vol <= 0)) return setErr("Vol/Hari harus lebih dari 0.");
     setBusy(true);
     try {
       await apiSend(`/api/trips/${tripId}/deklarasi`, "PATCH", {
@@ -130,11 +159,13 @@ export function DeklarasiModal() {
       <div>
         <div className="mb-2 flex items-center justify-between">
           <label className={cn(LBL, "mb-0")}>Rincian biaya</label>
-          <span className="text-[11px] font-semibold text-faint">Lampirkan bukti tiap komponen</span>
+          <span className="text-[11px] font-semibold text-faint">Jumlah = Vol × Tarif</span>
         </div>
 
         <div className="flex flex-col gap-3">
-          {rows.map((r, i) => (
+          {rows.map((r, i) => {
+            const ket = KETENTUAN.find((k) => k.nama === r.komponen);
+            return (
             <div key={i} className="rounded-2xl border border-border bg-surface-2 p-3">
               <div className="flex items-center gap-2">
                 <input
@@ -142,7 +173,7 @@ export function DeklarasiModal() {
                   value={r.komponen}
                   list="komponen-umum"
                   onChange={(e) => patchRow(i, { komponen: e.target.value })}
-                  placeholder="Komponen"
+                  placeholder="Komponen biaya"
                 />
                 <button
                   type="button"
@@ -153,29 +184,56 @@ export function DeklarasiModal() {
                   <Icon name="trash" size={15} />
                 </button>
               </div>
+              {ket && (
+                <p className="mt-1.5 text-[10.5px] font-semibold text-faint">Ketentuan: {ket.hint}</p>
+              )}
               <div className="mt-2 flex gap-2">
-                <input
-                  className={cn(INP, "h-[42px] flex-1")}
-                  value={r.keterangan}
-                  onChange={(e) => patchRow(i, { keterangan: e.target.value })}
-                  placeholder="Keterangan (opsional)"
-                />
-                <div className="relative flex-1">
-                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-bold text-faint">Rp</span>
+                <div className="w-[92px] flex-none">
                   <input
                     type="number"
-                    inputMode="numeric"
+                    inputMode="decimal"
                     min={0}
-                    className={cn(INP, "h-[42px] pl-9 text-right tabular-nums")}
-                    value={r.jumlah}
-                    onChange={(e) => patchRow(i, { jumlah: e.target.value })}
-                    placeholder="0"
+                    className={cn(INP, "h-[42px] text-right tabular-nums")}
+                    value={r.vol}
+                    onChange={(e) => patchRow(i, { vol: e.target.value })}
+                    placeholder="Vol"
+                    aria-label="Vol/Hari"
                   />
+                  <span className="mt-0.5 block text-center text-[9.5px] font-semibold text-faint">Vol{ket?.satuan ? ` (${ket.satuan})` : "/Hari"}</span>
+                </div>
+                <div className="flex-1">
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-bold text-faint">Rp</span>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      className={cn(INP, "h-[42px] pl-9 text-right tabular-nums")}
+                      value={r.tarif}
+                      onChange={(e) => patchRow(i, { tarif: e.target.value })}
+                      placeholder="0"
+                      aria-label="Nilai Rupiah (tarif satuan)"
+                    />
+                  </div>
+                  <span className="mt-0.5 block text-center text-[9.5px] font-semibold text-faint">Tarif satuan</span>
+                </div>
+                <div className="w-[104px] flex-none">
+                  <div className={cn(INP, "flex h-[42px] items-center justify-end tabular-nums text-[12.5px] font-extrabold")}>
+                    {fmtRupiah(rowJumlah(r))}
+                  </div>
+                  <span className="mt-0.5 block text-center text-[9.5px] font-semibold text-faint">Jumlah</span>
                 </div>
               </div>
+              <input
+                className={cn(INP, "mt-2 h-[38px] w-full text-[12px]")}
+                value={r.keterangan}
+                onChange={(e) => patchRow(i, { keterangan: e.target.value })}
+                placeholder="Keterangan (opsional)"
+              />
               <BuktiUpload value={r.bukti_file_id} onChange={(ids) => patchRow(i, { bukti_file_id: ids })} />
             </div>
-          ))}
+            );
+          })}
         </div>
         <datalist id="komponen-umum">
           {KOMPONEN_UMUM.map((k) => (
@@ -183,12 +241,25 @@ export function DeklarasiModal() {
           ))}
         </datalist>
 
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {KETENTUAN.map((k) => (
+            <button
+              key={k.nama}
+              type="button"
+              onClick={() => addKetentuan(k)}
+              className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-bold text-muted hover:border-dinas hover:text-dinas"
+            >
+              + {k.nama}
+            </button>
+          ))}
+        </div>
+
         <button
           type="button"
           onClick={addRow}
-          className="mt-3 flex items-center gap-1.5 text-[12.5px] font-extrabold text-accent"
+          className="mt-2 flex items-center gap-1.5 text-[12.5px] font-extrabold text-accent"
         >
-          <Icon name="plus" size={15} strokeWidth={2.6} /> Tambah komponen biaya
+          <Icon name="plus" size={15} strokeWidth={2.6} /> Komponen biaya lain
         </button>
 
         <div className="mt-3 flex items-center justify-between rounded-2xl bg-dinas-weak px-4 py-3">
