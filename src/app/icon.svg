@@ -2,9 +2,9 @@
   <defs>
     <!-- Gradien clay biru: sorotan kiri-atas → biru dalam kanan-bawah -->
     <linearGradient id="clayBg" x1="70" y1="52" x2="452" y2="470" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#6f92ff"/>
-      <stop offset="0.52" stop-color="#4a72f0"/>
-      <stop offset="1" stop-color="#2c50c4"/>
+      <stop offset="0" stop-color="#85a2ff"/>
+      <stop offset="0.52" stop-color="#5f84f5"/>
+      <stop offset="1" stop-color="#3a62d8"/>
     </linearGradient>
     <linearGradient id="markGrad" x1="150" y1="180" x2="392" y2="360" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#ffffff"/>
@@ -17,7 +17,7 @@
     </radialGradient>
     <radialGradient id="botShade" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
       gradientTransform="translate(388 402) rotate(-130) scale(280 280)">
-      <stop offset="0" stop-color="#1a2f7a" stop-opacity="0.45"/>
+      <stop offset="0" stop-color="#1a2f7a" stop-opacity="0.32"/>
       <stop offset="1" stop-color="#1a2f7a" stop-opacity="0"/>
     </radialGradient>
     <filter id="markShadow" x="100" y="100" width="360" height="360" filterUnits="userSpaceOnUse">

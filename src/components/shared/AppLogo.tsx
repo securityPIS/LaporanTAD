@@ -13,9 +13,9 @@ export function AppLogo({ size = 34 }: { size?: number }) {
     >
       <defs>
         <linearGradient id="alClayBg" x1="70" y1="52" x2="452" y2="470" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#6f92ff" />
-          <stop offset="0.52" stopColor="#4a72f0" />
-          <stop offset="1" stopColor="#2c50c4" />
+          <stop offset="0" stopColor="#85a2ff" />
+          <stop offset="0.52" stopColor="#5f84f5" />
+          <stop offset="1" stopColor="#3a62d8" />
         </linearGradient>
         <linearGradient id="alMarkGrad" x1="150" y1="180" x2="392" y2="360" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#ffffff" />
@@ -40,7 +40,7 @@ export function AppLogo({ size = 34 }: { size?: number }) {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(388 402) rotate(-130) scale(280 280)"
         >
-          <stop offset="0" stopColor="#1a2f7a" stopOpacity="0.45" />
+          <stop offset="0" stopColor="#1a2f7a" stopOpacity="0.32" />
           <stop offset="1" stopColor="#1a2f7a" stopOpacity="0" />
         </radialGradient>
         <filter id="alMarkShadow" x="100" y="100" width="360" height="360" filterUnits="userSpaceOnUse">
