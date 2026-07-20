@@ -9,6 +9,7 @@ import { Sheet, AREA, BTN_BATAL, BTN_PRIMARY, INP, LBL } from "@/components/ui/S
 import { Icon } from "@/components/shared/Icons";
 import { fmtRupiah } from "@/lib/rupiah";
 import { joinIds, splitIds } from "@/lib/files";
+import { alasanKomponenDilarang, komponenTersedia, type SifatDinas } from "@/lib/dinas-rules";
 
 interface CostDraft {
   komponen: string;
@@ -58,12 +59,16 @@ export function DeklarasiModal() {
     realisasi_mulai?: string;
     realisasi_selesai?: string;
     catatan?: string;
+    sifat?: SifatDinas;
+    kendaraan_pribadi?: boolean;
     biaya?: CostDraft[];
   };
 
   const [mulai, setMulai] = useState(initial.realisasi_mulai || planMulai);
   const [selesai, setSelesai] = useState(initial.realisasi_selesai || planSelesai);
   const [catatan, setCatatan] = useState(initial.catatan || "");
+  const [sifat, setSifat] = useState<SifatDinas>(initial.sifat || "non_residensial");
+  const [kendaraanPribadi, setKendaraanPribadi] = useState<boolean>(initial.kendaraan_pribadi ?? false);
   const [rows, setRows] = useState<CostDraft[]>(
     initial.biaya && initial.biaya.length > 0
       ? initial.biaya
@@ -72,6 +77,7 @@ export function DeklarasiModal() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  const aturan = { sifat, kendaraanPribadi };
   const total = rows.reduce((s, r) => s + rowJumlah(r), 0);
   const selesaiBeda = selesai && planSelesai && selesai !== planSelesai;
 
@@ -104,12 +110,19 @@ export function DeklarasiModal() {
     if (biaya.length === 0) return setErr("Isi minimal satu komponen biaya beserta tarifnya.");
     if (biaya.some((b) => b.tarif < 0)) return setErr("Tarif biaya tidak boleh negatif.");
     if (biaya.some((b) => b.vol <= 0)) return setErr("Vol/Hari harus lebih dari 0.");
+    // Tegakkan aturan klaim (residensial / kendaraan pribadi).
+    const terlarang = biaya.find((b) => alasanKomponenDilarang(b.komponen, aturan));
+    if (terlarang) {
+      return setErr(`"${terlarang.komponen}" — ${alasanKomponenDilarang(terlarang.komponen, aturan)}`);
+    }
     setBusy(true);
     try {
       await apiSend(`/api/trips/${tripId}/deklarasi`, "PATCH", {
         tanggal_realisasi_mulai: mulai,
         tanggal_realisasi_selesai: selesai,
         catatan,
+        sifat,
+        kendaraan_pribadi: kendaraanPribadi,
         biaya,
       });
       modal.onDone?.();
@@ -151,6 +164,52 @@ export function DeklarasiModal() {
         </div>
       )}
 
+      {/* Sifat dinas & moda — menentukan komponen biaya yang boleh diklaim. */}
+      <div>
+        <label className={LBL}>Sifat dinas</label>
+        <div className="flex gap-2">
+          {([
+            { v: "non_residensial", t: "Non-Residensial", d: "Biaya sendiri" },
+            { v: "residensial", t: "Residensial", d: "Difasilitasi penyelenggara" },
+          ] as const).map((o) => (
+            <button
+              key={o.v}
+              type="button"
+              onClick={() => setSifat(o.v)}
+              className={cn(
+                "flex-1 rounded-xl border px-3 py-2 text-left",
+                sifat === o.v ? "border-dinas bg-dinas-weak" : "border-border bg-surface-2",
+              )}
+            >
+              <div className={cn("text-[12.5px] font-extrabold", sifat === o.v ? "text-dinas" : "text-text")}>{o.t}</div>
+              <div className="text-[10.5px] text-faint">{o.d}</div>
+            </button>
+          ))}
+        </div>
+        {sifat === "residensial" && (
+          <p className="mt-1.5 text-[11px] font-semibold text-cuti">
+            Akomodasi & Transport Lokal tidak dapat diklaim (sudah difasilitasi).
+          </p>
+        )}
+      </div>
+
+      <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-border bg-surface-2 px-3 py-2.5">
+        <input
+          type="checkbox"
+          checked={kendaraanPribadi}
+          onChange={(e) => setKendaraanPribadi(e.target.checked)}
+          className="mt-0.5 h-4 w-4 flex-none accent-[var(--dinas)]"
+        />
+        <span>
+          <span className="block text-[12.5px] font-bold text-text">Pergi/pulang pakai kendaraan pribadi</span>
+          <span className="block text-[10.5px] text-faint">
+            {kendaraanPribadi
+              ? "Tiket transportasi umum & transport bandara/stasiun tidak dapat diklaim."
+              : "Centang bila memakai kendaraan pribadi (klaim per-km, bukan tiket)."}
+          </span>
+        </span>
+      </label>
+
       <div>
         <label className={LBL}>Catatan (opsional)</label>
         <textarea className={AREA} value={catatan} onChange={(e) => setCatatan(e.target.value)} placeholder="Mis. menginap 1 malam lebih lama karena…" />
@@ -165,11 +224,12 @@ export function DeklarasiModal() {
         <div className="flex flex-col gap-3">
           {rows.map((r, i) => {
             const ket = KETENTUAN.find((k) => k.nama === r.komponen);
+            const larangan = alasanKomponenDilarang(r.komponen, aturan);
             return (
-            <div key={i} className="rounded-2xl border border-border bg-surface-2 p-3">
+            <div key={i} className={cn("rounded-2xl border bg-surface-2 p-3", larangan ? "border-libur" : "border-border")}>
               <div className="flex items-center gap-2">
                 <input
-                  className={cn(INP, "h-[42px] flex-1")}
+                  className={cn(INP, "h-[42px] flex-1", larangan && "border-libur")}
                   value={r.komponen}
                   list="komponen-umum"
                   onChange={(e) => patchRow(i, { komponen: e.target.value })}
@@ -184,9 +244,13 @@ export function DeklarasiModal() {
                   <Icon name="trash" size={15} />
                 </button>
               </div>
-              {ket && (
+              {larangan ? (
+                <p className="mt-1.5 flex items-start gap-1 text-[10.5px] font-bold text-libur">
+                  <Icon name="lock" size={12} /> {larangan}
+                </p>
+              ) : ket ? (
                 <p className="mt-1.5 text-[10.5px] font-semibold text-faint">Ketentuan: {ket.hint}</p>
-              )}
+              ) : null}
               <div className="mt-2 flex gap-2">
                 <div className="w-[92px] flex-none">
                   <input
@@ -242,16 +306,26 @@ export function DeklarasiModal() {
         </datalist>
 
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {KETENTUAN.map((k) => (
-            <button
-              key={k.nama}
-              type="button"
-              onClick={() => addKetentuan(k)}
-              className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-bold text-muted hover:border-dinas hover:text-dinas"
-            >
-              + {k.nama}
-            </button>
-          ))}
+          {KETENTUAN.map((k) => {
+            const boleh = komponenTersedia(k.nama, aturan);
+            return (
+              <button
+                key={k.nama}
+                type="button"
+                disabled={!boleh}
+                title={boleh ? undefined : (alasanKomponenDilarang(k.nama, aturan) ?? undefined)}
+                onClick={() => addKetentuan(k)}
+                className={cn(
+                  "rounded-full border px-2.5 py-1 text-[11px] font-bold",
+                  boleh
+                    ? "border-border bg-surface text-muted hover:border-dinas hover:text-dinas"
+                    : "cursor-not-allowed border-dashed border-border bg-surface-2 text-faint line-through opacity-60",
+                )}
+              >
+                + {k.nama}
+              </button>
+            );
+          })}
         </div>
 
         <button

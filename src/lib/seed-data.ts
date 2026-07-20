@@ -196,6 +196,7 @@ const trips: TripRow[] = [
     keperluan: "Koordinasi vendor infrastruktur", transportasi: "Pesawat",
     keterangan: "", lampiran_file_id: "", status: "spd_terbit",
     tanggal_realisasi_mulai: "", tanggal_realisasi_selesai: "", deklarasi_catatan: "",
+    deklarasi_sifat: "", deklarasi_kendaraan_pribadi: false,
     created_at: "2026-07-14T09:00:00+07:00", updated_at: "2026-07-16T09:00:00+07:00",
   },
   {
@@ -205,6 +206,7 @@ const trips: TripRow[] = [
     keterangan: "", lampiran_file_id: "", status: "selesai",
     tanggal_realisasi_mulai: "2026-07-05", tanggal_realisasi_selesai: "2026-07-06",
     deklarasi_catatan: "Sesuai rencana.",
+    deklarasi_sifat: "non_residensial", deklarasi_kendaraan_pribadi: false,
     created_at: "2026-07-01T09:00:00+07:00", updated_at: "2026-07-07T09:00:00+07:00",
   },
   {
@@ -213,6 +215,7 @@ const trips: TripRow[] = [
     keperluan: "Pelatihan sistem baru", transportasi: "",
     keterangan: "", lampiran_file_id: "", status: "draft",
     tanggal_realisasi_mulai: "", tanggal_realisasi_selesai: "", deklarasi_catatan: "",
+    deklarasi_sifat: "", deklarasi_kendaraan_pribadi: false,
     created_at: "2026-07-17T09:00:00+07:00", updated_at: "2026-07-17T09:00:00+07:00",
   },
 ];

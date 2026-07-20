@@ -70,6 +70,8 @@ export async function createTrip(actor: UserRow, input: TripInput): Promise<Trip
     tanggal_realisasi_mulai: "",
     tanggal_realisasi_selesai: "",
     deklarasi_catatan: "",
+    deklarasi_sifat: "",
+    deklarasi_kendaraan_pribadi: false,
     created_at: now,
     updated_at: now,
   };
@@ -150,6 +152,8 @@ export async function saveDeklarasi(actor: UserRow, id: string, input: Deklarasi
     tanggal_realisasi_mulai: input.tanggal_realisasi_mulai,
     tanggal_realisasi_selesai: input.tanggal_realisasi_selesai,
     deklarasi_catatan: input.catatan ?? "",
+    deklarasi_sifat: input.sifat,
+    deklarasi_kendaraan_pribadi: input.kendaraan_pribadi,
     updated_at: nowWIB(),
   });
   await writeAudit({

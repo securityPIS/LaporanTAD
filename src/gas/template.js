@@ -54,6 +54,8 @@ function createDeklarasiTemplate() {
   // ── Identitas perjalanan ─────────────────────────────────────────────────
   infoLine(body, "Dari", "{{dari}}");
   infoLine(body, "Tujuan", "{{tujuan}}");
+  infoLine(body, "Sifat Dinas", "{{sifat}}");
+  infoLine(body, "Moda Transport", "{{moda}}");
   infoLine(body, "Mulai", "{{realisasi_mulai}}");
   infoLine(body, "Kembali", "{{realisasi_selesai}}");
   infoLine(body, "Durasi", "{{lama_hari}}");

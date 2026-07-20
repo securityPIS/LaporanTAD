@@ -19,7 +19,9 @@ function trip(p: Partial<TripRow>): TripRow {
     keperluan: "Audit", transportasi: "Kereta", keterangan: "",
     lampiran_file_id: "", status: "selesai",
     tanggal_realisasi_mulai: "2026-07-05", tanggal_realisasi_selesai: "2026-07-07",
-    deklarasi_catatan: "Menginap lebih lama", created_at: "", updated_at: "", ...p,
+    deklarasi_catatan: "Menginap lebih lama",
+    deklarasi_sifat: "non_residensial", deklarasi_kendaraan_pribadi: false,
+    created_at: "", updated_at: "", ...p,
   };
 }
 

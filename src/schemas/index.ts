@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { normalizePhone } from "@/lib/phone";
+import { alasanKomponenDilarang } from "@/lib/dinas-rules";
 
 const jam = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Format jam HH:mm tidak valid");
 const tanggal = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format tanggal tidak valid");
@@ -95,11 +96,27 @@ export const deklarasiSchema = z
     tanggal_realisasi_mulai: tanggal,
     tanggal_realisasi_selesai: tanggal,
     catatan: z.string().max(500).optional().default(""),
+    // Sifat dinas & moda menentukan aturan klaim biaya (lib/dinas-rules).
+    sifat: z.enum(["residensial", "non_residensial"]).default("non_residensial"),
+    kendaraan_pribadi: z.boolean().default(false),
     biaya: z.array(tripCostSchema).min(1, "Isi minimal satu komponen biaya"),
   })
   .refine((v) => v.tanggal_realisasi_selesai >= v.tanggal_realisasi_mulai, {
     message: "Tanggal kembali tidak boleh sebelum tanggal berangkat",
     path: ["tanggal_realisasi_selesai"],
+  })
+  // Tegakkan aturan klaim: komponen terlarang (residensial / kendaraan pribadi)
+  // tak boleh ada dalam rincian biaya.
+  .superRefine((v, ctx) => {
+    v.biaya.forEach((b, i) => {
+      const alasan = alasanKomponenDilarang(b.komponen, {
+        sifat: v.sifat,
+        kendaraanPribadi: v.kendaraan_pribadi,
+      });
+      if (alasan) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: alasan, path: ["biaya", i, "komponen"] });
+      }
+    });
   });
 export type DeklarasiInput = z.infer<typeof deklarasiSchema>;
 

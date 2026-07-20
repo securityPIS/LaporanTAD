@@ -24,6 +24,8 @@ function trip(p: Partial<TripRow>): TripRow {
     tanggal_realisasi_mulai: "",
     tanggal_realisasi_selesai: "",
     deklarasi_catatan: "",
+    deklarasi_sifat: "",
+    deklarasi_kendaraan_pribadi: false,
     created_at: "",
     updated_at: "",
     ...p,
