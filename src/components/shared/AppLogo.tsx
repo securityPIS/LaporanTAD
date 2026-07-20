@@ -13,9 +13,9 @@ export function AppLogo({ size = 34 }: { size?: number }) {
     >
       <defs>
         <linearGradient id="alClayBg" x1="70" y1="52" x2="452" y2="470" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#6f92ff" />
-          <stop offset="0.52" stopColor="#4a72f0" />
-          <stop offset="1" stopColor="#2c50c4" />
+          <stop offset="0" stopColor="#85a2ff" />
+          <stop offset="0.52" stopColor="#5f84f5" />
+          <stop offset="1" stopColor="#3a62d8" />
         </linearGradient>
         <linearGradient id="alMarkGrad" x1="150" y1="180" x2="392" y2="360" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#ffffff" />
@@ -40,7 +40,7 @@ export function AppLogo({ size = 34 }: { size?: number }) {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(388 402) rotate(-130) scale(280 280)"
         >
-          <stop offset="0" stopColor="#1a2f7a" stopOpacity="0.45" />
+          <stop offset="0" stopColor="#1a2f7a" stopOpacity="0.32" />
           <stop offset="1" stopColor="#1a2f7a" stopOpacity="0" />
         </radialGradient>
         <filter id="alMarkShadow" x="100" y="100" width="360" height="360" filterUnits="userSpaceOnUse">
@@ -63,11 +63,28 @@ export function AppLogo({ size = 34 }: { size?: number }) {
         strokeWidth="3"
       />
 
-      {/* Logo Pertamina: tiga anak panah (biru, hijau, merah) menanjak ke kanan */}
-      <g filter="url(#alMarkShadow)" stroke="#ffffff" strokeOpacity="0.28" strokeWidth="4" strokeLinejoin="round">
-        <path d="M302 330 L152 284 L196 330 L152 376 Z" fill="#00A0E3" />
-        <path d="M342 256 L192 210 L236 256 L192 302 Z" fill="#1AA64C" />
-        <path d="M382 182 L232 136 L276 182 L232 228 Z" fill="#ED1C24" />
+      {/* Logo Pertamina: mark resmi tiga anak panah (merah, hijau, biru) */}
+      <g filter="url(#alMarkShadow)">
+        <g
+          transform="translate(118.3 152.2) scale(3.5)"
+          stroke="#ffffff"
+          strokeOpacity="0.30"
+          strokeWidth="0.7"
+          strokeLinejoin="round"
+        >
+          <path
+            fill="#E50021"
+            d="M78.7,20H59.4c0,0-4.7,0.1-7.2-3.7C49.7,12.6,41.6,0,41.6,0h19.8c0,0,3.9,0.1,6.3,3.4C70.2,6.8,78.7,20,78.7,20"
+          />
+          <path
+            fill="#B8C900"
+            d="M78.7,25.2H59.4c0,0-4.7-0.1-7.2,3.7S41.6,45.2,41.6,45.2h19.8c0,0,3.9-0.1,6.3-3.4C70.2,38.5,78.7,25.2,78.7,25.2"
+          />
+          <path
+            fill="#0061B0"
+            d="M44.1,28.6c1.3-2.1,3.4-3.4,3.4-3.4H27.1c0,0-4.7-0.1-7.2,3.7S0,59.3,0,59.3h19.8c0,0,3.9-0.1,6.3-3.4C28,53.3,39.3,36,44.1,28.6"
+          />
+        </g>
       </g>
     </svg>
   );
