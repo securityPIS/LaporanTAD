@@ -8,7 +8,20 @@ Skrip di sini di-*versikan* di repo (ARSITEKTUR §8 poin 5) — tidak ada skrip
 | Berkas | Fungsi |
 |--------|--------|
 | `docgen.js` | Web App docgen: template Google Docs → PDF + sisip TTD (dipanggil `/api/generate`) |
+| `template.js` | `createDeklarasiTemplate()` — buat Google Docs template Deklarasi Dinas (format Pengeluaran Dinas + placeholder) secara terprogram |
 | `cron.js` | `syncHolidays` (tahunan) & `weeklyBackup` (mingguan) |
+
+## Template Deklarasi Dinas otomatis
+
+Setelah `clasp push` (atau deploy CI), buka editor Apps Script → pilih fungsi
+**`createDeklarasiTemplate`** → **Run** (beri izin Drive/Docs bila diminta). Skrip
+membuat Google Docs "Template — Deklarasi Dinas" lengkap dengan placeholder
+(`{{keperluan}}`, `{{dari}}`, `{{tujuan}}`, `{{realisasi_mulai}}`,
+`{{realisasi_selesai}}`, `{{lama_hari}}`, `{{catatan}}`, `{{total_biaya}}`,
+`{{nama}}`, `{{nopek}}`, `{{ttd}}`, dan tabel Rincian `{{@no}}` `{{@komponen}}`
+`{{@vol}}` `{{@nilai}}` `{{@mata_uang}}` `{{@jumlah}}`). Salin **ID dokumen** dari
+log Eksekusi, lalu daftarkan di **Admin → Template** (jenis: Deklarasi Dinas).
+Kotak tanda tangan Manager & PMSol sengaja dibiarkan kosong (diisi manual).
 
 ## Setup
 

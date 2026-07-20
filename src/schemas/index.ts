@@ -79,10 +79,13 @@ export const tripSchema = z
 export type TripInput = z.infer<typeof tripSchema>;
 
 // Deklarasi Dinas (fase 2) — realisasi + rincian biaya, diisi sepulang dinas.
+// Biaya mengikuti ketentuan dinas: jumlah = vol × tarif (dihitung di server).
+// vol = Vol/Hari (hari, malam, km, dsb.), tarif = Nilai Rupiah satuan.
 export const tripCostSchema = z.object({
   komponen: z.string().min(1, "Komponen wajib diisi").max(100),
   keterangan: z.string().max(200).optional().default(""),
-  jumlah: z.number({ invalid_type_error: "Jumlah harus angka" }).int().nonnegative("Jumlah tidak boleh negatif"),
+  vol: z.number({ invalid_type_error: "Vol harus angka" }).positive("Vol harus lebih dari 0").default(1),
+  tarif: z.number({ invalid_type_error: "Tarif harus angka" }).int().nonnegative("Tarif tidak boleh negatif"),
   bukti_file_id: z.string().optional().default(""),
 });
 export type TripCostInput = z.infer<typeof tripCostSchema>;
