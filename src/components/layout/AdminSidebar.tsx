@@ -44,7 +44,7 @@ export function AdminSidebar() {
   const pending = data?.pending ?? 0;
 
   return (
-    <aside className="bg-bg px-[clamp(10px,3vw,22px)] pb-1 pt-2 wide:sticky wide:top-[76px] wide:z-30 wide:flex wide:h-[calc(100vh-76px)] wide:flex-none wide:flex-col wide:items-center wide:px-0 wide:pb-4 wide:pl-[clamp(10px,3vw,22px)] wide:pr-1 wide:pt-0">
+    <aside className="bg-bg px-[clamp(10px,3vw,22px)] pb-1 pt-2 wide:sticky wide:top-[76px] wide:z-30 wide:flex wide:h-[calc(100vh-76px)] wide:flex-none wide:flex-col wide:items-center wide:px-0 wide:pb-4 wide:pl-[clamp(10px,3vw,22px)] wide:pr-0 wide:pt-0">
       <div className="flex gap-[7px] overflow-x-auto rounded-2xl bg-surface p-[8px] shadow wide:h-full wide:w-[68px] wide:flex-col wide:gap-[5px] wide:overflow-visible wide:rounded-3xl wide:px-[10px] wide:py-4 wide:shadow-lg">
         {GROUPS.map((group, gi) => (
           <div key={group.title} className="flex gap-[7px] wide:contents">
