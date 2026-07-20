@@ -13,14 +13,21 @@ function initials(name: string): string {
   return name.split(" ").slice(0, 2).map((s) => s[0]?.toUpperCase() ?? "").join("");
 }
 
-export function TopBar() {
+export function TopBar({ columnFramed = false }: { columnFramed?: boolean }) {
   const pathname = usePathname();
   const { theme, toggleTheme, me } = useApp();
   const [open, setOpen] = useState(false);
   const isAdmin = pathname.startsWith("/admin");
 
   return (
-    <header className="sticky top-0 z-40 h-[76px] flex-none bg-bg px-[clamp(10px,3vw,22px)] pb-[10px] pt-[14px]">
+    <header
+      className={cn(
+        "sticky top-0 z-40 h-[76px] flex-none bg-bg px-[clamp(10px,3vw,22px)] pb-[10px] pt-[14px]",
+        // Pada desktop, saat berada dalam kolom terpusat, hilangkan padding samping
+        // agar lebar pill top bar persis sama dengan kotak konten di bawahnya.
+        columnFramed && "wide:px-0",
+      )}
+    >
       <div className="flex h-[52px] items-center justify-between gap-3 rounded-2xl bg-surface px-[clamp(12px,2vw,18px)] shadow">
         <div className="flex min-w-0 items-center gap-[11px]">
           <div className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-2xl shadow-sm">
