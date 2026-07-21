@@ -18,6 +18,8 @@ export function TopBar({ columnFramed = false }: { columnFramed?: boolean }) {
   const { theme, toggleTheme, me } = useApp();
   const [open, setOpen] = useState(false);
   const isAdmin = pathname.startsWith("/admin");
+  const firstName = me?.nama_lengkap?.trim().split(/\s+/)[0] ?? "";
+  const greeting = firstName ? `Hallo, ${firstName}` : "Hallo";
 
   return (
     <header
@@ -34,9 +36,9 @@ export function TopBar({ columnFramed = false }: { columnFramed?: boolean }) {
             <AppLogo size={34} />
           </div>
           <div className="min-w-0">
-            <div className="text-[15px] font-extrabold leading-none tracking-[-.2px]">LaporanTAD</div>
-            <div className="mt-[3px] text-[10.5px] font-semibold uppercase tracking-[.3px] text-faint">
-              Administrasi Pekerja
+            <div className="truncate text-[15px] font-extrabold leading-none tracking-[-.2px]">{greeting}</div>
+            <div className="mt-[3px] truncate text-[11px] font-semibold tracking-[.1px] text-faint">
+              Mau buat apa hari ini?
             </div>
           </div>
         </div>
