@@ -1,10 +1,10 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LaporanTAD">
   <defs>
-    <!-- Gradien clay biru: sorotan kiri-atas → biru dalam kanan-bawah -->
+    <!-- Gradien clay putih: sorotan kiri-atas → putih lembut kanan-bawah -->
     <linearGradient id="clayBg" x1="70" y1="52" x2="452" y2="470" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#85a2ff"/>
-      <stop offset="0.52" stop-color="#5f84f5"/>
-      <stop offset="1" stop-color="#3a62d8"/>
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.52" stop-color="#f4f7fc"/>
+      <stop offset="1" stop-color="#e4ebf5"/>
     </linearGradient>
     <linearGradient id="markGrad" x1="150" y1="180" x2="392" y2="360" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#ffffff"/>
@@ -17,11 +17,11 @@
     </radialGradient>
     <radialGradient id="botShade" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
       gradientTransform="translate(388 402) rotate(-130) scale(280 280)">
-      <stop offset="0" stop-color="#1a2f7a" stop-opacity="0.32"/>
-      <stop offset="1" stop-color="#1a2f7a" stop-opacity="0"/>
+      <stop offset="0" stop-color="#8b97ad" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#8b97ad" stop-opacity="0"/>
     </radialGradient>
     <filter id="markShadow" x="100" y="100" width="360" height="360" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="9" stdDeviation="12" flood-color="#0c1a52" flood-opacity="0.40"/>
+      <feDropShadow dx="0" dy="9" stdDeviation="12" flood-color="#33405c" flood-opacity="0.26"/>
     </filter>
   </defs>
 
@@ -29,8 +29,8 @@
   <rect x="24" y="24" width="464" height="464" rx="132" fill="url(#clayBg)"/>
   <rect x="24" y="24" width="464" height="464" rx="132" fill="url(#topGlow)"/>
   <rect x="24" y="24" width="464" height="464" rx="132" fill="url(#botShade)"/>
-  <!-- Cincin sorotan tipis (rim light) untuk kesan timbul -->
-  <rect x="30" y="30" width="452" height="452" rx="126" fill="none" stroke="#ffffff" stroke-opacity="0.20" stroke-width="3"/>
+  <!-- Cincin tepi tipis untuk mendefinisikan bentuk pada latar putih -->
+  <rect x="30" y="30" width="452" height="452" rx="126" fill="none" stroke="#ccd4e2" stroke-opacity="0.85" stroke-width="3"/>
 
   <!-- Logo Pertamina: mark resmi tiga anak panah (merah, hijau, biru) -->
   <g filter="url(#markShadow)">

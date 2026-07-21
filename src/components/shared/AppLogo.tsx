@@ -13,9 +13,9 @@ export function AppLogo({ size = 34 }: { size?: number }) {
     >
       <defs>
         <linearGradient id="alClayBg" x1="70" y1="52" x2="452" y2="470" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#85a2ff" />
-          <stop offset="0.52" stopColor="#5f84f5" />
-          <stop offset="1" stopColor="#3a62d8" />
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="0.52" stopColor="#f4f7fc" />
+          <stop offset="1" stopColor="#e4ebf5" />
         </linearGradient>
         <linearGradient id="alMarkGrad" x1="150" y1="180" x2="392" y2="360" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#ffffff" />
@@ -40,11 +40,11 @@ export function AppLogo({ size = 34 }: { size?: number }) {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(388 402) rotate(-130) scale(280 280)"
         >
-          <stop offset="0" stopColor="#1a2f7a" stopOpacity="0.32" />
-          <stop offset="1" stopColor="#1a2f7a" stopOpacity="0" />
+          <stop offset="0" stopColor="#8b97ad" stopOpacity="0.28" />
+          <stop offset="1" stopColor="#8b97ad" stopOpacity="0" />
         </radialGradient>
         <filter id="alMarkShadow" x="100" y="100" width="360" height="360" filterUnits="userSpaceOnUse">
-          <feDropShadow dx="0" dy="9" stdDeviation="12" floodColor="#0c1a52" floodOpacity="0.40" />
+          <feDropShadow dx="0" dy="9" stdDeviation="12" floodColor="#33405c" floodOpacity="0.26" />
         </filter>
       </defs>
 
@@ -58,8 +58,8 @@ export function AppLogo({ size = 34 }: { size?: number }) {
         height="452"
         rx="126"
         fill="none"
-        stroke="#ffffff"
-        strokeOpacity="0.20"
+        stroke="#ccd4e2"
+        strokeOpacity="0.85"
         strokeWidth="3"
       />
 
