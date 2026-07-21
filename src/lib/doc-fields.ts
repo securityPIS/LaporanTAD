@@ -18,6 +18,7 @@ export function ownerPlaceholders(owner: OwnerLike, tanggalCetak: string): Recor
     divisi: owner.divisi,
     bagian: owner.bagian,
     lokasi_kerja: owner.lokasi_kerja,
+    dari: owner.lokasi_kerja, // asal perjalanan = lokasi kerja (alias, dipakai SPD/Deklarasi)
     tanggal_cetak: fmtTgl(tanggalCetak),
   };
 }

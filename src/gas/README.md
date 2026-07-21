@@ -8,14 +8,22 @@ Skrip di sini di-*versikan* di repo (ARSITEKTUR §8 poin 5) — tidak ada skrip
 | Berkas | Fungsi |
 |--------|--------|
 | `docgen.js` | Web App docgen: template Google Docs → PDF + sisip TTD (dipanggil `/api/generate`) |
-| `template.js` | `createDeklarasiTemplate()` — buat Google Docs template Deklarasi Dinas (format Pengeluaran Dinas + placeholder) secara terprogram |
+| `template.js` | `createDeklarasiTemplate()` & `createSpdTemplate()` — buat Google Docs template (Deklarasi Dinas / SPD) berikut placeholder secara terprogram |
 | `cron.js` | `syncHolidays` (tahunan) & `weeklyBackup` (mingguan) |
 
-## Template Deklarasi Dinas otomatis
+## Template otomatis (SPD & Deklarasi)
 
 Setelah `clasp push` (atau deploy CI), buka editor Apps Script → pilih fungsi
-**`createDeklarasiTemplate`** → **Run** (beri izin Drive/Docs bila diminta). Skrip
-membuat Google Docs "Template — Deklarasi Dinas" lengkap dengan placeholder
+**`createSpdTemplate`** (SPD) atau **`createDeklarasiTemplate`** (Deklarasi) →
+**Run** (beri izin Drive/Docs bila diminta). Salin **ID dokumen** dari log lalu
+daftarkan di **Admin → Template** dengan jenis yang sesuai.
+
+`createSpdTemplate` menghasilkan "Template — Surat Perintah Perjalanan Dinas"
+dengan placeholder `{{nopek}}`, `{{nama}}`, `{{golongan}}`, `{{dari}}`,
+`{{tujuan}}`, `{{tanggal_mulai}}`, `{{tanggal_selesai}}`, `{{biaya_ditanggung}}`,
+`{{sifat}}`, `{{jenis_perjalanan}}`, `{{keperluan}}`, `{{ttd}}`.
+
+`createDeklarasiTemplate` membuat "Template — Deklarasi Dinas" lengkap dengan placeholder
 (`{{keperluan}}`, `{{dari}}`, `{{tujuan}}`, `{{realisasi_mulai}}`,
 `{{realisasi_selesai}}`, `{{lama_hari}}`, `{{catatan}}`, `{{total_biaya}}`,
 `{{nama}}`, `{{nopek}}`, `{{ttd}}`, dan tabel Rincian `{{@no}}` `{{@komponen}}`

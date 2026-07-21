@@ -70,7 +70,9 @@ export async function createTrip(actor: UserRow, input: TripInput): Promise<Trip
     tanggal_realisasi_mulai: "",
     tanggal_realisasi_selesai: "",
     deklarasi_catatan: "",
-    deklarasi_sifat: "",
+    sifat: input.sifat,
+    golongan: input.golongan ?? "",
+    biaya_ditanggung: input.biaya_ditanggung || "Perusahaan",
     deklarasi_kendaraan_pribadi: false,
     created_at: now,
     updated_at: now,
@@ -94,6 +96,9 @@ export async function updateTrip(actor: UserRow, id: string, input: TripInput): 
     transportasi: input.transportasi ?? "",
     keterangan: input.keterangan ?? "",
     lampiran_file_id: input.lampiran_file_id || existing.lampiran_file_id,
+    sifat: input.sifat,
+    golongan: input.golongan ?? "",
+    biaya_ditanggung: input.biaya_ditanggung || "Perusahaan",
     updated_at: nowWIB(),
   };
   const saved = await db.updateById("trips", id, patch);
@@ -152,7 +157,7 @@ export async function saveDeklarasi(actor: UserRow, id: string, input: Deklarasi
     tanggal_realisasi_mulai: input.tanggal_realisasi_mulai,
     tanggal_realisasi_selesai: input.tanggal_realisasi_selesai,
     deklarasi_catatan: input.catatan ?? "",
-    deklarasi_sifat: input.sifat,
+    sifat: input.sifat,
     deklarasi_kendaraan_pribadi: input.kendaraan_pribadi,
     updated_at: nowWIB(),
   });

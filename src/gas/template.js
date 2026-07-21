@@ -170,6 +170,113 @@ function createDeklarasiTemplate() {
   return { id: doc.getId(), url: url };
 }
 
+/**
+ * Buat template Google Docs "Surat Perintah Perjalanan Dinas" (SPD) —
+ * meniru format dokumen contoh. Jalankan dari editor Apps Script lalu daftarkan
+ * ID-nya di Admin → Template (jenis: SPD). Kotak tanda tangan Manager & PMSol
+ * dibiarkan kosong (diisi manual); TTD Pemohon disisipkan di {{ttd}}.
+ */
+function createSpdTemplate() {
+  var doc = DocumentApp.create("Template — Surat Perintah Perjalanan Dinas (LaporanTAD)");
+  var body = doc.getBody();
+  body.setPageWidth(595).setPageHeight(842);
+  body.setMarginTop(40).setMarginBottom(40).setMarginLeft(48).setMarginRight(48);
+  body.clear();
+
+  var GRAY = "#3f3f3f";
+  var WHITE = "#ffffff";
+
+  // Judul (logo perusahaan bisa ditambah manual di dokumen setelah dibuat).
+  var h1 = body.appendParagraph("SURAT PERINTAH PERJALANAN DINAS");
+  h1.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+  h1.editAsText().setBold(true).setFontSize(13).setUnderline(true);
+  body.appendParagraph("").setFontSize(4);
+
+  body.appendParagraph("Dengan ini mengijinkan / menugaskan:").editAsText().setFontSize(10);
+
+  infoLine(body, "No. Pekerja", "{{nopek}}");
+  infoLine(body, "Nama", "{{nama}}");
+  infoLine(body, "Golongan", "{{golongan}}");
+  body.appendParagraph("").setFontSize(3);
+  infoLine(body, "Untuk melaksanakan/mendapatkan", "Perjalanan Dinas {{jenis_perjalanan}}");
+  infoLine(body, "Dari", "{{dari}}");
+  infoLine(body, "Tujuan", "{{tujuan}}");
+  infoLine(body, "Terhitung mulai tanggal", "{{tanggal_mulai}}");
+  infoLine(body, "Sampai dengan tanggal", "{{tanggal_selesai}}");
+  infoLine(body, "Biaya ditanggung oleh", "{{biaya_ditanggung}}");
+  infoLine(body, "Dinas bersifat", "{{sifat}}");
+
+  body.appendHorizontalRule();
+  var kk = body.appendParagraph("Keterangan / Keperluan:");
+  kk.editAsText().setBold(true).setFontSize(10);
+  body.appendParagraph("{{keperluan}}").editAsText().setBold(false).setFontSize(10);
+  body.appendParagraph("").setFontSize(8);
+
+  // Blok tanda tangan (3 kolom). Hanya Pemohon yang mendapat {{ttd}};
+  // kolom Manager & PMSol dibiarkan kosong (hanya kotaknya).
+  var ttd = body.appendTable([
+    ["Pekerja", "Mengetahui,\nManager Fungsi", "Outsourcing Mgt Project"],
+    ["{{ttd}}", "", ""],
+    ["{{nama}}", "", ""],
+  ]);
+  setColWidths(ttd, [166, 166, 167]);
+  styleRow(ttd.getRow(0), { bold: true, size: 9.5, align: DocumentApp.HorizontalAlignment.CENTER });
+  ttd.getRow(1).setMinimumHeight(64);
+  var namaRow = ttd.getRow(2);
+  [0, 1, 2].forEach(function (c) {
+    namaRow.getCell(c).editAsText().setBold(true).setFontSize(9.5);
+    cellAlign(namaRow.getCell(c), DocumentApp.HorizontalAlignment.CENTER);
+  });
+  cellAlign(ttd.getRow(1).getCell(0), DocumentApp.HorizontalAlignment.CENTER);
+  // Hilangkan garis tabel tanda tangan agar tampil seperti dokumen contoh.
+  ttd.setBorderWidth(0);
+
+  var cat = body.appendParagraph("Catatan: Pertanggungjawaban dinas maksimal 5 (lima) hari kerja setelah kepulangan.");
+  cat.editAsText().setBold(false).setFontSize(9);
+  body.appendParagraph("").setFontSize(6);
+
+  // Tabel kunjungan (diisi manual oleh pejabat yang dikunjungi).
+  var kunjung = body.appendTable([
+    ["KETERANGAN", "Tujuan I", "Tujuan II", "Tujuan III"],
+    ["Tanggal Tiba", "", "", ""],
+    ["Tanggal Kembali", "", "", ""],
+    ["Tanda tangan Pejabat yang dikunjungi", "", "", ""],
+  ]);
+  setColWidths(kunjung, [214, 95, 95, 95]);
+  styleRow(kunjung.getRow(0), { bold: true, color: WHITE, bg: GRAY, size: 9, align: DocumentApp.HorizontalAlignment.CENTER });
+  kunjung.getRow(3).setMinimumHeight(56);
+  setTableFontSize(kunjung, 9);
+
+  // Buang paragraf kosong bawaan di awal.
+  if (
+    body.getNumChildren() > 1 &&
+    body.getChild(0).getType() === DocumentApp.ElementType.PARAGRAPH &&
+    body.getChild(0).asParagraph().getText() === ""
+  ) {
+    body.removeChild(body.getChild(0));
+  }
+
+  doc.saveAndClose();
+
+  var rootId = PropertiesService.getScriptProperties().getProperty("ROOT_FOLDER_ID");
+  if (rootId) {
+    try {
+      var file = DriveApp.getFileById(doc.getId());
+      DriveApp.getFolderById(rootId).addFile(file);
+      DriveApp.getRootFolder().removeFile(file);
+    } catch (e) {
+      Logger.log("Info: gagal memindah ke ROOT_FOLDER_ID (" + e + ") — dokumen tetap di My Drive.");
+    }
+  }
+
+  var url = doc.getUrl();
+  Logger.log("✓ Template SPD dibuat.");
+  Logger.log("  ID  : " + doc.getId());
+  Logger.log("  URL : " + url);
+  Logger.log("  → Daftarkan ID ini di Admin → Template (jenis: SPD).");
+  return { id: doc.getId(), url: url };
+}
+
 // Baris "Label : nilai" dengan label tebal.
 function infoLine(body, label, value) {
   var p = body.appendParagraph("");

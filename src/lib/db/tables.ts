@@ -130,10 +130,14 @@ export interface TripRow {
   tanggal_realisasi_mulai: string;
   tanggal_realisasi_selesai: string;
   deklarasi_catatan: string;
-  // Sifat dinas & moda — menentukan aturan klaim biaya (lihat lib/dinas-rules):
-  // residensial → tak boleh klaim akomodasi & transport lokal; kendaraan pribadi
-  // → tak boleh klaim tiket umum & transport bandara/terminal/stasiun/pelabuhan.
-  deklarasi_sifat: string; // "" | "residensial" | "non_residensial"
+  // Diisi saat perencanaan (SPD) & dipakai lagi di Deklarasi.
+  // sifat: "" | "residensial" | "non_residensial" — tampil di SPD ("Dinas
+  // bersifat") sekaligus menentukan aturan klaim biaya (lihat lib/dinas-rules).
+  sifat: string;
+  golongan: string; // golongan pekerja (SPD) — mis. "-"
+  biaya_ditanggung: string; // "Perusahaan" (default) / lainnya (SPD)
+  // Diisi saat Deklarasi (moda terealisasi): kendaraan pribadi → tak boleh
+  // klaim tiket umum & transport bandara/terminal/stasiun/pelabuhan.
   deklarasi_kendaraan_pribadi: boolean;
   created_at: string;
   updated_at: string;
@@ -254,13 +258,14 @@ export const TABLE_COLUMNS: Record<TableName, string[]> = {
   ],
   leave_types: ["id", "nama", "potong_saldo", "wajib_lampiran", "active"],
   leave_balances: ["id", "user_id", "tahun", "kuota", "penyesuaian", "catatan", "updated_at"],
-  // deklarasi_sifat & deklarasi_kendaraan_pribadi ditambahkan DI AKHIR agar
+  // Kolom sifat/kendaraan/golongan/biaya_ditanggung ditambahkan DI AKHIR agar
   // posisi kolom lama tak bergeser (aman untuk data Sheets yang sudah ada).
   trips: [
     "id", "user_id", "tujuan", "tanggal_mulai", "tanggal_selesai", "keperluan",
     "transportasi", "keterangan", "lampiran_file_id", "status",
     "tanggal_realisasi_mulai", "tanggal_realisasi_selesai", "deklarasi_catatan",
-    "created_at", "updated_at", "deklarasi_sifat", "deklarasi_kendaraan_pribadi",
+    "created_at", "updated_at", "sifat", "deklarasi_kendaraan_pribadi",
+    "golongan", "biaya_ditanggung",
   ],
   // Kolom vol & tarif ditambahkan DI AKHIR (bukan disisipkan) agar posisi kolom
   // lama tak bergeser — driver Sheets memetakan nilai berdasarkan urutan kolom,

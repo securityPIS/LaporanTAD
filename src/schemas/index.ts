@@ -72,6 +72,10 @@ export const tripSchema = z
     transportasi: z.string().max(100).optional().default(""),
     keterangan: z.string().max(500).optional().default(""),
     lampiran_file_id: z.string().optional().default(""),
+    // Data SPD (Surat Perintah Perjalanan Dinas), diisi saat perencanaan.
+    sifat: z.enum(["residensial", "non_residensial"]).default("non_residensial"),
+    golongan: z.string().max(50).optional().default(""),
+    biaya_ditanggung: z.string().max(100).optional().default("Perusahaan"),
   })
   .refine((v) => v.tanggal_selesai >= v.tanggal_mulai, {
     message: "Tanggal selesai tidak boleh sebelum tanggal mulai",

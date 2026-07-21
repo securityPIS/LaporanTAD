@@ -7,6 +7,7 @@ import { finalizeDocument } from "@/lib/docgen";
 import { ownerPlaceholders } from "@/lib/doc-fields";
 import { fmtJamHHMM } from "@/lib/overtime-calc";
 import { buildDeklarasiHeader, buildDeklarasiRows } from "@/lib/deklarasi";
+import { labelSifat } from "@/lib/dinas-rules";
 import { listCostsByTrip, markTripSelesai, markTripSpdIssued } from "@/repositories/trips";
 import { fmtRange, fmtTgl } from "@/lib/date";
 import { todayWIB } from "@/lib/wib";
@@ -57,6 +58,11 @@ export const POST = route(async (req) => {
       keperluan: t.keperluan,
       transportasi: t.transportasi,
       keterangan: t.keterangan,
+      // Field khusus SPD (Surat Perintah Perjalanan Dinas).
+      golongan: t.golongan || "-",
+      biaya_ditanggung: t.biaya_ditanggung || "Perusahaan",
+      sifat: labelSifat(t.sifat),
+      jenis_perjalanan: "Dalam Negeri",
     });
     afterGenerate = () => markTripSpdIssued(t.id);
   } else if (input.jenis === "deklarasi_dinas") {

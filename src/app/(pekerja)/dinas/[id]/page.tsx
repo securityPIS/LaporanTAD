@@ -63,7 +63,7 @@ export default function DinasDetailPage() {
           realisasi_mulai: t.tanggal_realisasi_mulai,
           realisasi_selesai: t.tanggal_realisasi_selesai,
           catatan: t.deklarasi_catatan,
-          sifat: t.deklarasi_sifat || undefined,
+          sifat: t.sifat || undefined,
           kendaraan_pribadi: t.deklarasi_kendaraan_pribadi,
           biaya: costs.map((c) => {
             // Data lama tanpa vol/tarif: pulihkan sebagai vol 1 × tarif = jumlah.

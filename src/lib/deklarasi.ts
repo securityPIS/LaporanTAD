@@ -66,7 +66,7 @@ export function buildDeklarasiHeader(
   return {
     ...ownerPlaceholders(owner, tanggalCetak),
     dari: owner.lokasi_kerja, // asal perjalanan = lokasi kerja pemohon
-    sifat: labelSifat(trip.deklarasi_sifat),
+    sifat: labelSifat(trip.sifat),
     moda: trip.deklarasi_kendaraan_pribadi ? "Kendaraan Pribadi" : (trip.transportasi || "-"),
     tujuan: trip.tujuan,
     keperluan: trip.keperluan,
