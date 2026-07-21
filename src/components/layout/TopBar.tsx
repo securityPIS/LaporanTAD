@@ -13,13 +13,22 @@ function initials(name: string): string {
   return name.split(" ").slice(0, 2).map((s) => s[0]?.toUpperCase() ?? "").join("");
 }
 
+// Nama sapaan: ≤2 kata tampil penuh; >2 kata, kata terakhir disingkat
+// jadi huruf awal + titik (mis. "Andi Budi Santoso Wijaya" → "Andi Budi Santoso W.").
+function greetingName(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length <= 2) return parts.join(" ");
+  const last = parts[parts.length - 1];
+  return [...parts.slice(0, -1), `${last.charAt(0).toUpperCase()}.`].join(" ");
+}
+
 export function TopBar({ columnFramed = false }: { columnFramed?: boolean }) {
   const pathname = usePathname();
   const { theme, toggleTheme, me } = useApp();
   const [open, setOpen] = useState(false);
   const isAdmin = pathname.startsWith("/admin");
-  const firstName = me?.nama_lengkap?.trim().split(/\s+/)[0] ?? "";
-  const greeting = firstName ? `Hallo, ${firstName}` : "Hallo";
+  const displayName = me?.nama_lengkap ? greetingName(me.nama_lengkap) : "";
+  const greeting = displayName ? `Hallo, ${displayName}` : "Hallo";
 
   return (
     <header
