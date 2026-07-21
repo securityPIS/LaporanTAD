@@ -13,22 +13,11 @@ function initials(name: string): string {
   return name.split(" ").slice(0, 2).map((s) => s[0]?.toUpperCase() ?? "").join("");
 }
 
-// Nama sapaan: ≤2 kata tampil penuh; >2 kata, kata terakhir disingkat
-// jadi huruf awal + titik (mis. "Andi Budi Santoso Wijaya" → "Andi Budi Santoso W.").
-function greetingName(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length <= 2) return parts.join(" ");
-  const last = parts[parts.length - 1];
-  return [...parts.slice(0, -1), `${last.charAt(0).toUpperCase()}.`].join(" ");
-}
-
 export function TopBar({ columnFramed = false }: { columnFramed?: boolean }) {
   const pathname = usePathname();
   const { theme, toggleTheme, me } = useApp();
   const [open, setOpen] = useState(false);
   const isAdmin = pathname.startsWith("/admin");
-  const displayName = me?.nama_lengkap ? greetingName(me.nama_lengkap) : "";
-  const greeting = displayName ? `Hallo, ${displayName}` : "Hallo";
 
   return (
     <header
@@ -45,9 +34,9 @@ export function TopBar({ columnFramed = false }: { columnFramed?: boolean }) {
             <AppLogo size={34} />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-[15px] font-extrabold leading-none tracking-[-.2px]">{greeting}</div>
-            <div className="mt-[3px] truncate text-[11px] font-semibold tracking-[.1px] text-faint">
-              Mau buat apa hari ini?
+            <div className="text-[15px] font-extrabold leading-none tracking-[-.2px]">LaporanTAD</div>
+            <div className="mt-[3px] text-[10.5px] font-semibold uppercase tracking-[.3px] text-faint">
+              Aplikasi Administrasi TAD
             </div>
           </div>
         </div>
