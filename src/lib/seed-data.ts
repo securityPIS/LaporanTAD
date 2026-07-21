@@ -196,7 +196,7 @@ const trips: TripRow[] = [
     keperluan: "Koordinasi vendor infrastruktur", transportasi: "Pesawat",
     keterangan: "", lampiran_file_id: "", status: "spd_terbit",
     tanggal_realisasi_mulai: "", tanggal_realisasi_selesai: "", deklarasi_catatan: "",
-    sifat: "", golongan: "-", biaya_ditanggung: "Perusahaan", deklarasi_kendaraan_pribadi: false,
+    sifat: "", golongan: "-", biaya_ditanggung: "Perusahaan", surat_perintah_file_id: "", deklarasi_kendaraan_pribadi: false,
     created_at: "2026-07-14T09:00:00+07:00", updated_at: "2026-07-16T09:00:00+07:00",
   },
   {
@@ -206,7 +206,7 @@ const trips: TripRow[] = [
     keterangan: "", lampiran_file_id: "", status: "selesai",
     tanggal_realisasi_mulai: "2026-07-05", tanggal_realisasi_selesai: "2026-07-06",
     deklarasi_catatan: "Sesuai rencana.",
-    sifat: "residensial", golongan: "-", biaya_ditanggung: "Perusahaan", deklarasi_kendaraan_pribadi: false,
+    sifat: "residensial", golongan: "-", biaya_ditanggung: "Perusahaan", surat_perintah_file_id: "", deklarasi_kendaraan_pribadi: false,
     created_at: "2026-07-01T09:00:00+07:00", updated_at: "2026-07-07T09:00:00+07:00",
   },
   {
@@ -215,15 +215,16 @@ const trips: TripRow[] = [
     keperluan: "Pelatihan sistem baru", transportasi: "",
     keterangan: "", lampiran_file_id: "", status: "draft",
     tanggal_realisasi_mulai: "", tanggal_realisasi_selesai: "", deklarasi_catatan: "",
-    sifat: "", golongan: "-", biaya_ditanggung: "Perusahaan", deklarasi_kendaraan_pribadi: false,
+    sifat: "", golongan: "-", biaya_ditanggung: "Perusahaan", surat_perintah_file_id: "", deklarasi_kendaraan_pribadi: false,
     created_at: "2026-07-17T09:00:00+07:00", updated_at: "2026-07-17T09:00:00+07:00",
   },
 ];
 
 const trip_costs: TripCostRow[] = [
-  { id: "tc_1", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Transportasi Umum (Kereta PP)", keterangan: "Tiket kereta PP", vol: 1, tarif: 1200000, jumlah: 1200000, bukti_file_id: "", urutan: 1, created_at: "2026-07-07T09:00:00+07:00" },
-  { id: "tc_2", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Akomodasi Penginapan", keterangan: "1 malam", vol: 1, tarif: 900000, jumlah: 900000, bukti_file_id: "", urutan: 2, created_at: "2026-07-07T09:00:00+07:00" },
-  { id: "tc_3", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Uang Harian", keterangan: "2 hari", vol: 2, tarif: 150000, jumlah: 300000, bukti_file_id: "", urutan: 3, created_at: "2026-07-07T09:00:00+07:00" },
+  { id: "tc_1", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Transportasi Umum (Pergi)", keterangan: "Tiket kereta berangkat", vol: 1, tarif: 600000, jumlah: 600000, bukti_file_id: "", urutan: 1, created_at: "2026-07-07T09:00:00+07:00" },
+  { id: "tc_2", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Transportasi Umum (Pulang)", keterangan: "Tiket kereta pulang", vol: 1, tarif: 600000, jumlah: 600000, bukti_file_id: "", urutan: 2, created_at: "2026-07-07T09:00:00+07:00" },
+  { id: "tc_3", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Akomodasi Penginapan", keterangan: "1 malam", vol: 1, tarif: 900000, jumlah: 900000, bukti_file_id: "", urutan: 3, created_at: "2026-07-07T09:00:00+07:00" },
+  { id: "tc_4", trip_id: "trp_2", user_id: "usr_rizky", komponen: "Uang Harian", keterangan: "2 hari", vol: 2, tarif: 150000, jumlah: 300000, bukti_file_id: "", urutan: 4, created_at: "2026-07-07T09:00:00+07:00" },
 ];
 
 const leave_balances: LeaveBalanceRow[] = users

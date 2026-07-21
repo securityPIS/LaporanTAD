@@ -51,6 +51,29 @@ export default function DinasDetailPage() {
     if (!t) return;
     openModal("gen", { jenis: "spd", sumberId: t.id, lockJenis: true, label: `${t.tujuan} · ${fmtRange(t.tanggal_mulai, t.tanggal_selesai)}` }, reload);
   }
+  function openEditDinas() {
+    if (!t) return;
+    openModal(
+      "dinas",
+      {
+        tripId: t.id,
+        defaults: {
+          tujuan: t.tujuan,
+          tanggal_mulai: t.tanggal_mulai,
+          tanggal_selesai: t.tanggal_selesai,
+          keperluan: t.keperluan,
+          transportasi: t.transportasi,
+          keterangan: t.keterangan,
+          lampiran_file_id: t.lampiran_file_id,
+          surat_perintah_file_id: t.surat_perintah_file_id,
+          sifat: t.sifat || undefined,
+          golongan: t.golongan,
+          biaya_ditanggung: t.biaya_ditanggung,
+        },
+      },
+      reload,
+    );
+  }
   function openDeklarasiForm() {
     if (!t) return;
     openModal(
@@ -121,9 +144,23 @@ export default function DinasDetailPage() {
               <KV k="Tujuan" v={t.tujuan} />
               <KV k="Rencana tanggal" v={fmtRange(t.tanggal_mulai, t.tanggal_selesai)} />
               {t.transportasi && <KV k="Transportasi" v={t.transportasi} />}
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span className="text-[12px] font-semibold text-faint">Surat Perintah</span>
+                {splitIds(t.surat_perintah_file_id).length > 0 ? (
+                  splitIds(t.surat_perintah_file_id).map((fid, k) => (
+                    <a key={fid} href={`/api/files/${fid}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[11.5px] font-bold text-lembur">
+                      <Icon name="docCheck" size={13} /> Berkas {k + 1}
+                    </a>
+                  ))
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[11.5px] font-bold text-cuti">
+                    <Icon name="upload" size={13} /> Belum dilampirkan
+                  </span>
+                )}
+              </div>
               {splitIds(t.lampiran_file_id).length > 0 && (
                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <span className="text-[12px] font-semibold text-faint">Lampiran</span>
+                  <span className="text-[12px] font-semibold text-faint">Lampiran lain</span>
                   {splitIds(t.lampiran_file_id).map((fid, k) => (
                     <a key={fid} href={`/api/files/${fid}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[11.5px] font-bold text-accent">
                       <Icon name="doc" size={13} /> Berkas {k + 1}
@@ -140,11 +177,15 @@ export default function DinasDetailPage() {
                       </a>
                     )}
                     <button onClick={openSpd} className={BTN_GHOST}>Buat ulang</button>
+                    <button onClick={openEditDinas} className={BTN_GHOST}>Ubah data</button>
                   </>
                 ) : (
-                  <button onClick={openSpd} className={BTN_PRIMARY}>
-                    <Icon name="doc" size={14} /> Buat SPD
-                  </button>
+                  <>
+                    <button onClick={openSpd} className={BTN_PRIMARY}>
+                      <Icon name="doc" size={14} /> Buat SPD
+                    </button>
+                    <button onClick={openEditDinas} className={BTN_GHOST}>Ubah data</button>
+                  </>
                 )}
               </div>
             </Module>

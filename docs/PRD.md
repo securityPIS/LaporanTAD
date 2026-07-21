@@ -181,11 +181,11 @@ diturunkan saat SPD terbit & tanggal selesai lewat — lihat `lib/trip-view`).
 
 | ID | Persyaratan | Prio |
 |----|-------------|:---:|
-| FR-DNS-01 | Form rencana (fase SPD): tujuan (kota/tempat), tanggal mulai, tanggal selesai, keperluan, moda transportasi (opsional), keterangan, lampiran (opsional) | W |
-| FR-DNS-02 | Daftar dinas milik sendiri; tiap kartu menampilkan status dua dokumen (SPD & Deklarasi) & fase; edit/hapus selama periode belum terkunci | W |
+| FR-DNS-01 | Form rencana (fase SPD): tujuan (kota/tempat), tanggal mulai, tanggal selesai, keperluan, moda transportasi (opsional), **Surat Perintah (dokumen penugasan — wajib disubmit pada SPD)**, keterangan, lampiran lain (opsional) | W |
+| FR-DNS-02 | Daftar dinas milik sendiri; tiap kartu menampilkan status dua dokumen (SPD & Deklarasi) & fase; **data dinas yang sudah diisi dapat diubah** (edit) / hapus selama periode belum terkunci | W |
 | FR-DNS-03 | Admin melihat & memfilter dinas semua pekerja, termasuk fase & total biaya | W |
-| FR-DNS-04 | Halaman detail dinas: stepper fase + modul SPD (Buat/Unduh) + modul Deklarasi (terkunci sampai SPD terbit) | W |
-| FR-DNS-05 | Form Deklarasi (fase 2): tanggal realisasi (boleh beda dari rencana), catatan, rincian biaya per komponen (komponen, keterangan, jumlah rupiah, bukti/lampiran per komponen) dengan total otomatis | W |
+| FR-DNS-04 | Halaman detail dinas: stepper fase + modul SPD (Buat/Unduh + **Ubah data** + tautan Surat Perintah) + modul Deklarasi (terkunci sampai SPD terbit) | W |
+| FR-DNS-05 | Form Deklarasi (fase 2): tanggal realisasi (boleh beda dari rencana), catatan, rincian biaya per komponen (komponen, keterangan, jumlah rupiah, bukti/lampiran per komponen) dengan total otomatis. **Tiket & transport antar-kota (selain Transport Lokal) diisi terpisah Pergi/Pulang dan wajib melampirkan bukti tiket — atau bukti jarak pergi & pulang bila memakai kendaraan pribadi** | W |
 | FR-DNS-06 | Generate Deklarasi menyertakan rincian biaya sebagai baris tabel berulang; menutup dinas (fase `selesai`) | S |
 
 ### 5.6 Data Pekerja (PKJ)

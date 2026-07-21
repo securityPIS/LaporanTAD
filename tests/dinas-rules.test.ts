@@ -1,6 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { alasanKomponenDilarang, komponenTersedia, labelSifat } from "../src/lib/dinas-rules";
+import {
+  alasanBuktiKurang,
+  alasanKomponenDilarang,
+  buktiWajibUntuk,
+  isTransportPerjalanan,
+  komponenTersedia,
+  labelSifat,
+} from "../src/lib/dinas-rules";
 
 test("labelSifat", () => {
   assert.equal(labelSifat("residensial"), "Residensial");
@@ -48,4 +55,35 @@ test("aturan gabungan (residensial + kendaraan pribadi)", () => {
   assert.ok(alasanKomponenDilarang("Transport Bandara (Jabodetabek)", opt));
   assert.equal(komponenTersedia("Uang Harian", opt), true);
   assert.equal(komponenTersedia("Kendaraan Pribadi", opt), true);
+});
+
+test("isTransportPerjalanan: transport antar-kota, bukan lokal", () => {
+  assert.equal(isTransportPerjalanan("Transportasi Umum (Pergi)"), true);
+  assert.equal(isTransportPerjalanan("Transport Bandara (Pulang)"), true);
+  assert.equal(isTransportPerjalanan("Kendaraan Pribadi (Pergi)"), true);
+  // Transport Lokal, uang harian, akomodasi, lain-lain → bukan.
+  assert.equal(isTransportPerjalanan("Transport Lokal"), false);
+  assert.equal(isTransportPerjalanan("Uang Harian"), false);
+  assert.equal(isTransportPerjalanan("Akomodasi Penginapan"), false);
+  assert.equal(isTransportPerjalanan("Lain-lain"), false);
+});
+
+test("buktiWajibUntuk: tiket untuk umum, jarak untuk kendaraan pribadi", () => {
+  assert.equal(buktiWajibUntuk("Transportasi Umum (Pergi)"), "tiket");
+  assert.equal(buktiWajibUntuk("Transport Bandara (Pulang)"), "tiket");
+  assert.equal(buktiWajibUntuk("Kendaraan Pribadi (Pergi)"), "jarak");
+  assert.equal(buktiWajibUntuk("Transport Lokal"), null);
+  assert.equal(buktiWajibUntuk("Uang Harian"), null);
+});
+
+test("alasanBuktiKurang: wajib bukti untuk transport, opsional untuk lainnya", () => {
+  // Transport tanpa bukti → ada alasan (dilarang lolos).
+  assert.ok(alasanBuktiKurang("Transportasi Umum (Pergi)", ""));
+  assert.ok(alasanBuktiKurang("Kendaraan Pribadi (Pulang)", "   "));
+  // Transport dengan bukti → lolos.
+  assert.equal(alasanBuktiKurang("Transportasi Umum (Pergi)", "file_123"), null);
+  assert.equal(alasanBuktiKurang("Kendaraan Pribadi (Pulang)", "f1,f2"), null);
+  // Komponen non-transport → tak wajib bukti.
+  assert.equal(alasanBuktiKurang("Uang Harian", ""), null);
+  assert.equal(alasanBuktiKurang("Transport Lokal", ""), null);
 });

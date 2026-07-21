@@ -136,6 +136,9 @@ export interface TripRow {
   sifat: string;
   golongan: string; // golongan pekerja (SPD) — mis. "-"
   biaya_ditanggung: string; // "Perusahaan" (default) / lainnya (SPD)
+  // Dokumen Surat Perintah (penugasan) yang wajib dilampirkan pada SPD.
+  // Boleh >1 berkas (id dipisah koma, lihat lib/files).
+  surat_perintah_file_id: string;
   // Diisi saat Deklarasi (moda terealisasi): kendaraan pribadi → tak boleh
   // klaim tiket umum & transport bandara/terminal/stasiun/pelabuhan.
   deklarasi_kendaraan_pribadi: boolean;
@@ -265,7 +268,7 @@ export const TABLE_COLUMNS: Record<TableName, string[]> = {
     "transportasi", "keterangan", "lampiran_file_id", "status",
     "tanggal_realisasi_mulai", "tanggal_realisasi_selesai", "deklarasi_catatan",
     "created_at", "updated_at", "sifat", "deklarasi_kendaraan_pribadi",
-    "golongan", "biaya_ditanggung",
+    "golongan", "biaya_ditanggung", "surat_perintah_file_id",
   ],
   // Kolom vol & tarif ditambahkan DI AKHIR (bukan disisipkan) agar posisi kolom
   // lama tak bergeser — driver Sheets memetakan nilai berdasarkan urutan kolom,

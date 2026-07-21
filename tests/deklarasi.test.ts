@@ -20,7 +20,7 @@ function trip(p: Partial<TripRow>): TripRow {
     lampiran_file_id: "", status: "selesai",
     tanggal_realisasi_mulai: "2026-07-05", tanggal_realisasi_selesai: "2026-07-07",
     deklarasi_catatan: "Menginap lebih lama",
-    sifat: "non_residensial", golongan: "-", biaya_ditanggung: "Perusahaan", deklarasi_kendaraan_pribadi: false,
+    sifat: "non_residensial", golongan: "-", biaya_ditanggung: "Perusahaan", surat_perintah_file_id: "", deklarasi_kendaraan_pribadi: false,
     created_at: "", updated_at: "", ...p,
   };
 }

@@ -36,6 +36,42 @@ function isTransportasiUmum(k: string): boolean {
   if (/kendaraan\s*pribadi|pribadi/i.test(k)) return false;
   return /transportasi\s*umum|tiket|pesawat|kereta|whoosh|bis\b|bus\b|travel/i.test(k);
 }
+function isKendaraanPribadi(k: string): boolean {
+  return /kendaraan\s*pribadi|pribadi/i.test(k);
+}
+
+/**
+ * Komponen transport antar-kota (bukan Transport Lokal): tiket transportasi
+ * umum, transport ke bandara/terminal/stasiun/pelabuhan, atau kendaraan
+ * pribadi. Komponen inilah yang dipisah pergi/pulang & wajib berbukti.
+ */
+export function isTransportPerjalanan(komponen: string): boolean {
+  const k = (komponen || "").trim();
+  if (!k) return false;
+  if (isTransportLokal(k)) return false;
+  return isTransportBandara(k) || isTransportasiUmum(k) || isKendaraanPribadi(k);
+}
+
+/**
+ * Apakah komponen wajib melampirkan bukti. Transport antar-kota (tiket /
+ * transport bandara) wajib bukti tiket; bila kendaraan pribadi, wajib bukti
+ * jarak (pergi & pulang). Return null bila tidak wajib.
+ */
+export function buktiWajibUntuk(komponen: string): "tiket" | "jarak" | null {
+  if (!isTransportPerjalanan(komponen)) return null;
+  return isKendaraanPribadi(komponen) ? "jarak" : "tiket";
+}
+
+/** Alasan bukti komponen kurang lengkap, atau null bila sudah/ tak wajib. */
+export function alasanBuktiKurang(komponen: string, buktiFileId: string): string | null {
+  const wajib = buktiWajibUntuk(komponen);
+  if (!wajib) return null;
+  const ada = (buktiFileId || "").split(",").map((s) => s.trim()).filter(Boolean).length > 0;
+  if (ada) return null;
+  return wajib === "jarak"
+    ? "Wajib lampirkan bukti jarak (pergi & pulang) untuk kendaraan pribadi."
+    : "Wajib lampirkan bukti tiket.";
+}
 
 /**
  * Alasan sebuah komponen biaya dilarang menurut aturan aktif, atau null bila

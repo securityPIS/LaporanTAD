@@ -9,7 +9,7 @@ import { Sheet, AREA, BTN_BATAL, BTN_PRIMARY, INP, LBL } from "@/components/ui/S
 import { Icon } from "@/components/shared/Icons";
 import { fmtRupiah } from "@/lib/rupiah";
 import { joinIds, splitIds } from "@/lib/files";
-import { alasanKomponenDilarang, komponenTersedia, type SifatDinas } from "@/lib/dinas-rules";
+import { alasanBuktiKurang, alasanKomponenDilarang, buktiWajibUntuk, komponenTersedia, type SifatDinas } from "@/lib/dinas-rules";
 
 interface CostDraft {
   komponen: string;
@@ -21,29 +21,50 @@ interface CostDraft {
 
 // Komponen biaya sesuai Ketentuan Dinas (Lampiran ketentuan & manfaat).
 // tarif = Nilai Rupiah satuan (0 = sesuai realisasi/invoice), satuan = unit Vol/Hari.
+// arah = komponen transport antar-kota (bukan Transport Lokal): dipisah
+// Pergi/Pulang & wajib berbukti (tiket, atau bukti jarak bila kendaraan pribadi).
+type Arah = "Pergi" | "Pulang";
 interface KetentuanBiaya {
   nama: string;
   tarif: number;
   satuan: string;
   hint: string;
+  arah?: boolean;
 }
 const KETENTUAN: KetentuanBiaya[] = [
   { nama: "Uang Harian", tarif: 150_000, satuan: "hari", hint: "Rp 150.000 / hari" },
   { nama: "Akomodasi Penginapan", tarif: 0, satuan: "malam", hint: "≤ Rp 600.000 / malam · realisasi + invoice" },
   { nama: "Transport Lokal", tarif: 50_000, satuan: "hari", hint: "Rp 50.000 / hari · sesuai undangan" },
-  { nama: "Transport Bandara (Jabodetabek)", tarif: 150_000, satuan: "kali", hint: "Rp 150.000 · umum PP stasiun/terminal Rp 225.000" },
-  { nama: "Transport Bandara (Non-Jabodetabek)", tarif: 150_000, satuan: "kali", hint: "Rp 150.000" },
-  { nama: "Kendaraan Pribadi", tarif: 2_000, satuan: "km", hint: "Rp 2.000 / km · ≤ 200 km sekali jalan" },
-  { nama: "Transportasi Umum", tarif: 0, satuan: "tiket", hint: "Ekonomi / LCC · realisasi + boarding pass" },
+  { nama: "Transportasi Umum", tarif: 0, satuan: "tiket", hint: "Ekonomi / LCC · realisasi + tiket", arah: true },
+  { nama: "Transport Bandara", tarif: 150_000, satuan: "kali", hint: "Rp 150.000 · umum PP stasiun/terminal Rp 225.000", arah: true },
+  { nama: "Kendaraan Pribadi", tarif: 2_000, satuan: "km", hint: "Rp 2.000 / km · ≤ 200 km sekali jalan · wajib bukti jarak", arah: true },
   { nama: "Lain-lain", tarif: 0, satuan: "", hint: "Sesuai realisasi" },
 ];
-const KOMPONEN_UMUM = KETENTUAN.map((k) => k.nama);
+
+// Pilihan cepat (chip): komponen transport dipecah menjadi Pergi & Pulang.
+interface ChipKetentuan { key: string; nama: string; ket: KetentuanBiaya; arah?: Arah }
+const CHIPS: ChipKetentuan[] = KETENTUAN.flatMap((k) =>
+  k.arah
+    ? [
+        { key: `${k.nama}-pergi`, nama: `${k.nama} (Pergi)`, ket: k, arah: "Pergi" as Arah },
+        { key: `${k.nama}-pulang`, nama: `${k.nama} (Pulang)`, ket: k, arah: "Pulang" as Arah },
+      ]
+    : [{ key: k.nama, nama: k.nama, ket: k }],
+);
+const KOMPONEN_UMUM = CHIPS.map((c) => c.nama);
+
+/** Ketentuan sebuah komponen, mengabaikan sufiks arah "(Pergi)"/"(Pulang)". */
+function ketentuanFor(komponen: string): KetentuanBiaya | undefined {
+  const base = komponen.replace(/\s*\((?:pergi|pulang)\)\s*$/i, "").trim();
+  return KETENTUAN.find((k) => k.nama === base) ?? KETENTUAN.find((k) => k.nama === komponen);
+}
 
 function blankRow(nama = "", tarif = 0): CostDraft {
   return { komponen: nama, keterangan: "", vol: "1", tarif: tarif ? String(tarif) : "", bukti_file_id: "" };
 }
-function rowFromKetentuan(k: KetentuanBiaya): CostDraft {
-  return { komponen: k.nama, keterangan: "", vol: "1", tarif: k.tarif ? String(k.tarif) : "", bukti_file_id: "" };
+function rowFromKetentuan(k: KetentuanBiaya, arah?: Arah): CostDraft {
+  const nama = arah ? `${k.nama} (${arah})` : k.nama;
+  return { komponen: nama, keterangan: "", vol: "1", tarif: k.tarif ? String(k.tarif) : "", bukti_file_id: "" };
 }
 function rowJumlah(r: CostDraft): number {
   return Math.round((Number(r.vol) || 0) * (Number(r.tarif) || 0));
@@ -87,8 +108,8 @@ export function DeklarasiModal() {
   function addRow() {
     setRows((rs) => [...rs, blankRow()]);
   }
-  function addKetentuan(k: KetentuanBiaya) {
-    setRows((rs) => [...rs, rowFromKetentuan(k)]);
+  function addKetentuan(k: KetentuanBiaya, arah?: Arah) {
+    setRows((rs) => [...rs, rowFromKetentuan(k, arah)]);
   }
   function removeRow(i: number) {
     setRows((rs) => (rs.length <= 1 ? rs : rs.filter((_, idx) => idx !== i)));
@@ -114,6 +135,11 @@ export function DeklarasiModal() {
     const terlarang = biaya.find((b) => alasanKomponenDilarang(b.komponen, aturan));
     if (terlarang) {
       return setErr(`"${terlarang.komponen}" — ${alasanKomponenDilarang(terlarang.komponen, aturan)}`);
+    }
+    // Transport antar-kota (tiket / kendaraan pribadi) wajib berbukti.
+    const kurangBukti = biaya.find((b) => alasanBuktiKurang(b.komponen, b.bukti_file_id));
+    if (kurangBukti) {
+      return setErr(`"${kurangBukti.komponen}" — ${alasanBuktiKurang(kurangBukti.komponen, kurangBukti.bukti_file_id)}`);
     }
     setBusy(true);
     try {
@@ -216,20 +242,27 @@ export function DeklarasiModal() {
       </div>
 
       <div>
-        <div className="mb-2 flex items-center justify-between">
+        <div className="mb-1 flex items-center justify-between">
           <label className={cn(LBL, "mb-0")}>Rincian biaya</label>
           <span className="text-[11px] font-semibold text-faint">Jumlah = Vol × Tarif</span>
         </div>
+        <p className="mb-2 text-[10.5px] text-faint">
+          Tiket & transport (selain Transport Lokal) diisi terpisah <b>Pergi</b> & <b>Pulang</b>, dan wajib
+          melampirkan bukti tiket — atau bukti jarak pergi &amp; pulang bila memakai kendaraan pribadi.
+        </p>
 
         <div className="flex flex-col gap-3">
           {rows.map((r, i) => {
-            const ket = KETENTUAN.find((k) => k.nama === r.komponen);
+            const ket = ketentuanFor(r.komponen);
             const larangan = alasanKomponenDilarang(r.komponen, aturan);
+            const buktiKurang = !larangan ? alasanBuktiKurang(r.komponen, r.bukti_file_id) : null;
+            const wajibBukti = buktiWajibUntuk(r.komponen);
+            const invalid = Boolean(larangan) || Boolean(buktiKurang);
             return (
-            <div key={i} className={cn("rounded-2xl border bg-surface-2 p-3", larangan ? "border-libur" : "border-border")}>
+            <div key={i} className={cn("rounded-2xl border bg-surface-2 p-3", invalid ? "border-libur" : "border-border")}>
               <div className="flex items-center gap-2">
                 <input
-                  className={cn(INP, "h-[42px] flex-1", larangan && "border-libur")}
+                  className={cn(INP, "h-[42px] flex-1", invalid && "border-libur")}
                   value={r.komponen}
                   list="komponen-umum"
                   onChange={(e) => patchRow(i, { komponen: e.target.value })}
@@ -294,7 +327,17 @@ export function DeklarasiModal() {
                 onChange={(e) => patchRow(i, { keterangan: e.target.value })}
                 placeholder="Keterangan (opsional)"
               />
-              <BuktiUpload value={r.bukti_file_id} onChange={(ids) => patchRow(i, { bukti_file_id: ids })} />
+              <BuktiUpload
+                value={r.bukti_file_id}
+                onChange={(ids) => patchRow(i, { bukti_file_id: ids })}
+                required={Boolean(wajibBukti)}
+                label={wajibBukti === "jarak" ? "Lampirkan bukti jarak" : wajibBukti === "tiket" ? "Lampirkan tiket" : undefined}
+              />
+              {buktiKurang && (
+                <p className="mt-1 flex items-start gap-1 text-[10.5px] font-bold text-libur">
+                  <Icon name="upload" size={12} /> {buktiKurang}
+                </p>
+              )}
             </div>
             );
           })}
@@ -306,15 +349,15 @@ export function DeklarasiModal() {
         </datalist>
 
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {KETENTUAN.map((k) => {
-            const boleh = komponenTersedia(k.nama, aturan);
+          {CHIPS.map((c) => {
+            const boleh = komponenTersedia(c.nama, aturan);
             return (
               <button
-                key={k.nama}
+                key={c.key}
                 type="button"
                 disabled={!boleh}
-                title={boleh ? undefined : (alasanKomponenDilarang(k.nama, aturan) ?? undefined)}
-                onClick={() => addKetentuan(k)}
+                title={boleh ? undefined : (alasanKomponenDilarang(c.nama, aturan) ?? undefined)}
+                onClick={() => addKetentuan(c.ket, c.arah)}
                 className={cn(
                   "rounded-full border px-2.5 py-1 text-[11px] font-bold",
                   boleh
@@ -322,7 +365,7 @@ export function DeklarasiModal() {
                     : "cursor-not-allowed border-dashed border-border bg-surface-2 text-faint line-through opacity-60",
                 )}
               >
-                + {k.nama}
+                + {c.nama}
               </button>
             );
           })}
@@ -352,14 +395,19 @@ export function DeklarasiModal() {
 function BuktiUpload({
   value,
   onChange,
+  required,
+  label,
 }: {
   value: string;
   onChange: (fileIds: string) => void;
+  required?: boolean;
+  label?: string;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [busy, setBusy] = useState(false);
   const ids = splitIds(value);
   const has = ids.length > 0;
+  const perlu = Boolean(required) && !has; // wajib namun belum ada berkas
 
   async function handle(files: FileList) {
     setBusy(true);
@@ -402,11 +450,15 @@ function BuktiUpload({
         onClick={() => inputRef.current?.click()}
         className={cn(
           "flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-dashed px-3 py-2 text-[11.5px] font-bold",
-          has ? "border-lembur text-lembur" : "border-border-strong text-faint",
+          has ? "border-lembur text-lembur" : perlu ? "border-cuti text-cuti" : "border-border-strong text-faint",
         )}
       >
         <Icon name={has ? "check" : "upload"} size={14} />
-        {busy ? "Mengunggah…" : has ? `${ids.length} bukti · tambah` : "Lampirkan bukti"}
+        {busy
+          ? "Mengunggah…"
+          : has
+            ? `${ids.length} bukti · tambah`
+            : `${label ?? "Lampirkan bukti"}${required ? " *" : ""}`}
       </button>
       {has && (
         <button type="button" onClick={() => onChange("")} aria-label="Hapus bukti" className="flex-none text-faint">

@@ -73,6 +73,7 @@ export async function createTrip(actor: UserRow, input: TripInput): Promise<Trip
     sifat: input.sifat,
     golongan: input.golongan ?? "",
     biaya_ditanggung: input.biaya_ditanggung || "Perusahaan",
+    surat_perintah_file_id: input.surat_perintah_file_id ?? "",
     deklarasi_kendaraan_pribadi: false,
     created_at: now,
     updated_at: now,
@@ -99,6 +100,7 @@ export async function updateTrip(actor: UserRow, id: string, input: TripInput): 
     sifat: input.sifat,
     golongan: input.golongan ?? "",
     biaya_ditanggung: input.biaya_ditanggung || "Perusahaan",
+    surat_perintah_file_id: input.surat_perintah_file_id ?? "",
     updated_at: nowWIB(),
   };
   const saved = await db.updateById("trips", id, patch);

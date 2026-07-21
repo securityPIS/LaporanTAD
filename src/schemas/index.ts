@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { normalizePhone } from "@/lib/phone";
-import { alasanKomponenDilarang } from "@/lib/dinas-rules";
+import { alasanBuktiKurang, alasanKomponenDilarang } from "@/lib/dinas-rules";
 
 const jam = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Format jam HH:mm tidak valid");
 const tanggal = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format tanggal tidak valid");
@@ -76,6 +76,8 @@ export const tripSchema = z
     sifat: z.enum(["residensial", "non_residensial"]).default("non_residensial"),
     golongan: z.string().max(50).optional().default(""),
     biaya_ditanggung: z.string().max(100).optional().default("Perusahaan"),
+    // Dokumen Surat Perintah (penugasan) wajib dilampirkan pada SPD.
+    surat_perintah_file_id: z.string().optional().default(""),
   })
   .refine((v) => v.tanggal_selesai >= v.tanggal_mulai, {
     message: "Tanggal selesai tidak boleh sebelum tanggal mulai",
@@ -110,7 +112,7 @@ export const deklarasiSchema = z
     path: ["tanggal_realisasi_selesai"],
   })
   // Tegakkan aturan klaim: komponen terlarang (residensial / kendaraan pribadi)
-  // tak boleh ada dalam rincian biaya.
+  // tak boleh ada dalam rincian biaya; komponen transport wajib berbukti.
   .superRefine((v, ctx) => {
     v.biaya.forEach((b, i) => {
       const alasan = alasanKomponenDilarang(b.komponen, {
@@ -119,6 +121,10 @@ export const deklarasiSchema = z
       });
       if (alasan) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: alasan, path: ["biaya", i, "komponen"] });
+      }
+      const kurang = alasanBuktiKurang(b.komponen, b.bukti_file_id ?? "");
+      if (kurang) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: kurang, path: ["biaya", i, "bukti_file_id"] });
       }
     });
   });

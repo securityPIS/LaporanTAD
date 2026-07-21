@@ -27,6 +27,7 @@ function trip(p: Partial<TripRow>): TripRow {
     sifat: "",
     golongan: "-",
     biaya_ditanggung: "Perusahaan",
+    surat_perintah_file_id: "",
     deklarasi_kendaraan_pribadi: false,
     created_at: "",
     updated_at: "",

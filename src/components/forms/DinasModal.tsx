@@ -9,16 +9,35 @@ import { EvidenceUpload } from "./EvidenceUpload";
 
 export function DinasModal() {
   const { modal, closeModal, showToast } = useApp();
-  const [tujuan, setTujuan] = useState("");
-  const [mulai, setMulai] = useState("");
-  const [selesai, setSelesai] = useState("");
-  const [keperluan, setKeperluan] = useState("");
-  const [transportasi, setTransportasi] = useState("");
-  const [keterangan, setKeterangan] = useState("");
-  const [lampiran, setLampiran] = useState("");
-  const [sifat, setSifat] = useState<"residensial" | "non_residensial">("non_residensial");
-  const [golongan, setGolongan] = useState("");
-  const [biayaDitanggung, setBiayaDitanggung] = useState("Perusahaan");
+  const p = modal.payload ?? {};
+  // Mode ubah: dipanggil dari halaman detail dinas dengan data yang sudah ada.
+  const editId = String(p.tripId ?? "");
+  const isEdit = editId.length > 0;
+  const d = (p.defaults ?? {}) as {
+    tujuan?: string;
+    tanggal_mulai?: string;
+    tanggal_selesai?: string;
+    keperluan?: string;
+    transportasi?: string;
+    keterangan?: string;
+    lampiran_file_id?: string;
+    sifat?: "residensial" | "non_residensial";
+    golongan?: string;
+    biaya_ditanggung?: string;
+    surat_perintah_file_id?: string;
+  };
+
+  const [tujuan, setTujuan] = useState(d.tujuan ?? "");
+  const [mulai, setMulai] = useState(d.tanggal_mulai ?? "");
+  const [selesai, setSelesai] = useState(d.tanggal_selesai ?? "");
+  const [keperluan, setKeperluan] = useState(d.keperluan ?? "");
+  const [transportasi, setTransportasi] = useState(d.transportasi ?? "");
+  const [keterangan, setKeterangan] = useState(d.keterangan ?? "");
+  const [lampiran, setLampiran] = useState(d.lampiran_file_id ?? "");
+  const [suratPerintah, setSuratPerintah] = useState(d.surat_perintah_file_id ?? "");
+  const [sifat, setSifat] = useState<"residensial" | "non_residensial">(d.sifat ?? "non_residensial");
+  const [golongan, setGolongan] = useState(d.golongan ?? "");
+  const [biayaDitanggung, setBiayaDitanggung] = useState(d.biaya_ditanggung ?? "Perusahaan");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -27,15 +46,19 @@ export function DinasModal() {
     if (!tujuan.trim()) return setErr("Tujuan wajib diisi.");
     if (!mulai || !selesai) return setErr("Tanggal mulai & selesai wajib diisi.");
     if (!keperluan.trim()) return setErr("Keperluan wajib diisi.");
+    if (!suratPerintah.trim()) return setErr("Dokumen Surat Perintah wajib dilampirkan untuk SPD.");
     setBusy(true);
     try {
-      await apiSend("/api/trips", "POST", {
+      const body = {
         tujuan, tanggal_mulai: mulai, tanggal_selesai: selesai, keperluan, transportasi, keterangan,
-        lampiran_file_id: lampiran, sifat, golongan, biaya_ditanggung: biayaDitanggung,
-      });
+        lampiran_file_id: lampiran, surat_perintah_file_id: suratPerintah,
+        sifat, golongan, biaya_ditanggung: biayaDitanggung,
+      };
+      if (isEdit) await apiSend(`/api/trips/${editId}`, "PATCH", body);
+      else await apiSend("/api/trips", "POST", body);
       modal.onDone?.();
       closeModal();
-      showToast("Dinas tersimpan");
+      showToast(isEdit ? "Dinas diperbarui" : "Dinas tersimpan");
     } catch (e) {
       setErr((e as Error).message);
       setBusy(false);
@@ -44,14 +67,14 @@ export function DinasModal() {
 
   return (
     <Sheet
-      title="Rencanakan Dinas"
+      title={isEdit ? "Ubah Data Dinas" : "Rencanakan Dinas"}
       subtitle="Data untuk SPD — sebelum berangkat"
       onClose={closeModal}
       footer={
         <>
           <button onClick={closeModal} className={BTN_BATAL}>Batal</button>
           <button onClick={save} disabled={busy} className={cn(BTN_PRIMARY, busy && "opacity-60")}>
-            {busy ? "Menyimpan…" : "Simpan"}
+            {busy ? "Menyimpan…" : isEdit ? "Simpan perubahan" : "Simpan"}
           </button>
         </>
       }
@@ -113,11 +136,21 @@ export function DinasModal() {
         </div>
       </div>
 
+      <EvidenceUpload
+        kind="dinas"
+        label="Surat Perintah (dokumen penugasan)"
+        required
+        value={suratPerintah}
+        onChange={(id) => setSuratPerintah(id)}
+        multiple
+      />
+      <p className="-mt-1 text-[10.5px] text-faint">Wajib disubmit pada SPD — foto/scan surat perintah dinas yang menugaskan perjalanan ini.</p>
+
       <div>
         <label className={LBL}>Keterangan (opsional)</label>
         <textarea className={AREA} value={keterangan} onChange={(e) => setKeterangan(e.target.value)} />
       </div>
-      <EvidenceUpload kind="dinas" label="Lampiran (opsional)" value={lampiran} onChange={(id) => setLampiran(id)} multiple />
+      <EvidenceUpload kind="dinas" label="Lampiran lain (opsional)" value={lampiran} onChange={(id) => setLampiran(id)} multiple />
       {err && <div className="rounded-xl bg-libur-weak px-3 py-2 text-[12.5px] font-semibold text-libur">{err}</div>}
     </Sheet>
   );
